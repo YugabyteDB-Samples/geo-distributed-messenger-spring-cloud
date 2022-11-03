@@ -35,3 +35,5 @@ messenger/src/main/resources/root.crt
 gcloud/*.pem
 gcloud/google-storage-account-key.json
 gcloud/instructions_private.md
+config-server/.mvn
+/private

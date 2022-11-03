@@ -3,8 +3,8 @@
     <modelVersion>4.0.0</modelVersion>
     <!-- Project from https://start.vaadin.com/project/f5f9e3a7-303a-414e-b267-51b7c124d246 -->
     <groupId>com.yugabyte.app.messenger</groupId>
-    <artifactId>geo-distributed-messenger</artifactId>
-    <name>geo-distributed-messenger</name>
+    <artifactId>messenger</artifactId>
+    <name>messenger</name>
     <version>1.0-SNAPSHOT</version>
     <packaging>jar</packaging>
 
@@ -12,6 +12,7 @@
         <java.version>17</java.version>
         <vaadin.version>23.1.2</vaadin.version>
         <selenium.version>4.1.2</selenium.version>
+        <yugabytedb.jdbc.version>42.3.4</yugabytedb.jdbc.version>
         <postgresql.version>42.4.0</postgresql.version>
         <start-class>com.yugabyte.app.messenger.Application</start-class>
     </properties>
@@ -19,7 +20,7 @@
     <parent>
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-starter-parent</artifactId>
-        <version>2.7.3</version>
+        <version>2.7.5</version>
     </parent>
 
     <repositories>
@@ -75,6 +76,13 @@
                 <type>pom</type>
                 <scope>import</scope>
             </dependency>
+            <dependency>
+                <groupId>org.springframework.cloud</groupId>
+                <artifactId>spring-cloud-dependencies</artifactId>
+                <version>2021.0.4</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
         </dependencies>
     </dependencyManagement>
 
@@ -85,9 +93,11 @@
             <artifactId>vaadin-core</artifactId>
         </dependency>
         <dependency>
+
             <groupId>com.vaadin</groupId>
             <artifactId>vaadin-spring-boot-starter</artifactId>
         </dependency>
+
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-security</artifactId>
@@ -100,9 +110,9 @@
         </dependency>
 
         <dependency>
-            <groupId>com.google.apis</groupId>
-            <artifactId>google-api-services-runtimeconfig</artifactId>
-            <version>v1beta1-rev501-1.25.0</version>
+            <groupId>com.yugabyte</groupId>
+            <artifactId>jdbc-yugabytedb</artifactId>
+            <version>${yugabytedb.jdbc.version}</version>
         </dependency>
 
         <dependency>
@@ -126,16 +136,24 @@
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-validation</artifactId>
         </dependency>
+
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-devtools</artifactId>
             <optional>true</optional>
         </dependency>
+
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-test</artifactId>
             <scope>test</scope>
         </dependency>
+
+        <dependency>
+            <groupId>org.springframework.cloud</groupId>
+            <artifactId>spring-cloud-starter-config</artifactId>
+        </dependency>
+
         <dependency>
             <groupId>com.vaadin</groupId>
             <artifactId>vaadin-testbench</artifactId>
@@ -206,8 +224,9 @@
                 <activeByDefault>true</activeByDefault>
             </activation>
         </profile>
+
         <profile>
-            <!-- Production mode is activated using -Pproduction -->
+            <!-- Production mode is activated using -Pprod -->
             <id>prod</id>
             <properties>
                 <spring.profiles.active>prod</spring.profiles.active>

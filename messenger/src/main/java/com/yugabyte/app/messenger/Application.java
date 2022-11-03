@@ -29,47 +29,6 @@ import org.springframework.boot.web.servlet.support.SpringBootServletInitializer
 public class Application extends SpringBootServletInitializer implements AppShellConfigurator {
 
     public static void main(String[] args) {
-        enableFixieProxy();
-
         SpringApplication.run(Application.class, args);
-    }
-
-    private static void enableFixieProxy() {
-        if (System.getenv("USE_FIXIE_SOCKS") != null) {
-            boolean useFixie = Boolean.valueOf(System.getenv("USE_FIXIE_SOCKS"));
-
-            if (useFixie) {
-                System.out.println("Setting up Fixie Socks Proxy");
-
-                String[] fixieData = System.getenv("FIXIE_SOCKS_HOST").split("@");
-                String[] fixieCredentials = fixieData[0].split(":");
-                String[] fixieUrl = fixieData[1].split(":");
-
-                String fixieHost = fixieUrl[0];
-                String fixiePort = fixieUrl[1];
-                String fixieUser = fixieCredentials[0];
-                String fixiePassword = fixieCredentials[1];
-
-                DatabaseProxySelector proxySelector = new DatabaseProxySelector(fixieHost, Integer.parseInt(fixiePort));
-                ProxySelector.setDefault(proxySelector);
-
-                Authenticator.setDefault(new ProxyAuthenticator(fixieUser, fixiePassword));
-
-                System.out.println("Enabled Fixie Socks Proxy:" + fixieHost);
-            }
-        }
-    }
-
-    private static class ProxyAuthenticator extends Authenticator {
-        private final PasswordAuthentication passwordAuthentication;
-
-        private ProxyAuthenticator(String user, String password) {
-            passwordAuthentication = new PasswordAuthentication(user, password.toCharArray());
-        }
-
-        @Override
-        protected PasswordAuthentication getPasswordAuthentication() {
-            return passwordAuthentication;
-        }
     }
 }

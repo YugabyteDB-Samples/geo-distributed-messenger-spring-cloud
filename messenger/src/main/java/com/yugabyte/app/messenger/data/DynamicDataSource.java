@@ -21,28 +21,34 @@ public class DynamicDataSource extends AbstractRoutingDataSource {
 
     public final static Integer CURRENT_DATA_SOURCE_KEY = 1;
 
+    private String dsClassName;
     private String url;
     private String username;
     private String password;
     private String schemaName;
     private String yugabyteConnType;
+    private String additionalEndpoints;
     private int maxPoolSize;
 
     private HashMap<Object, Object> dataSources = new HashMap<>();
 
     public DynamicDataSource(
+            @Value("${spring.datasource.hikari.data-source-class-name:}") String dsClassName,
             @Value("${spring.datasource.url}") String url,
             @Value("${spring.datasource.username}") String username,
             @Value("${spring.datasource.password}") String password,
             @Value("${spring.datasource.hikari.maximum-pool-size:5}") int maxPoolSize,
             @Value("${spring.datasource.hikari.schema:public}") String schemaName,
+            @Value("${yugabytedb.additionalEndpoints:}") String additionalEndpoints,
             @Value("${yugabytedb.connection.type:standard}") String yugabyteConnType) {
+        this.dsClassName = dsClassName;
         this.url = url;
         this.username = username;
         this.password = password;
         this.maxPoolSize = maxPoolSize;
         this.schemaName = schemaName;
         this.yugabyteConnType = yugabyteConnType;
+        this.additionalEndpoints = additionalEndpoints;
 
         setTargetDataSources(dataSources);
 
@@ -58,6 +64,14 @@ public class DynamicDataSource extends AbstractRoutingDataSource {
         cfg.setPassword(password);
         cfg.setSchema(schemaName);
         cfg.setMaximumPoolSize(maxPoolSize);
+
+        if (!dsClassName.isBlank()) {
+            cfg.setDataSourceClassName(dsClassName);
+            System.out.println("Setting data source class " + dsClassName);
+        }
+
+        if (!additionalEndpoints.isBlank())
+            cfg.addDataSourceProperty("additionalEndpoints", additionalEndpoints);
 
         if (isReplicaConnection()) {
             System.out.println("Setting read only session characteristics for the replica connection");

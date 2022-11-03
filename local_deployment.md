@@ -8,13 +8,9 @@ Follow this instruction if you wish to run the entire application with all the c
   - [Prerequisite](#prerequisite)
   - [Architecture](#architecture)
   - [Create Custom Network](#create-custom-network)
-  - [Start Database](#start-database)
-    - [YugabyteDB](#yugabyteDB)
-    - [PostgreSQL](#postgresql)
+  - [Start YugabyteDB](#start-yugabyteDB)
   - [Start Minio](#start-minio)
-  - [Configure Kong Gateway](#configure-kong-gateway)
   - [Start Attachments Microservice](#start-attachments-microservice)
-  - [Create Kong Routes](#create-kong-routes)
   - [Start Messenging Microservice](#start-messenging-microservice)
   - [Clean Resources](#clean-resources)
 
@@ -27,6 +23,7 @@ Follow this instruction if you wish to run the entire application with all the c
 ## Prerequisite
 
 * Java 17+
+* Spring Cloud CLI
 * Maven 3.8.4+
 * Docker 20.10.12+
 
@@ -42,61 +39,32 @@ The second Attachments microservice is responsible for storing using pictures (a
 
 The Messaging microservice communicates to the Attachments one via the Kong Gateway. If the user wants to share a picture, the Messaging service triggers a special API endpoint on the Kong end and that endpoint routes the request to the Attachments instance.
 
-## Create Custom Network
 
-YugabyteDB/PostgreSQL, Kong Gateway and Minio will be running in Docker containers. 
+## Create Custom Docker Network
+
+YugabyteDB and Minio will be running in Docker containers. 
 
 Create a custom network for them:
 ```shell
 docker network create geo-messenger-net
 ```
 
-## Start Database
+## Start YugabyteDB
 
-You have two choices here. You can use YugabyteDB or PostgreSQL. The application works with both databases with no code changes. If you select YugabyteDB, then you still need to deploy PostgreSQL that is used by Kong Gateway.
-
-### YugabyteDB
-
-Start a multi-node YugabyteDB cluster.
-
-1. Start the cluster:
+1. Start a YugabyteDB instance:
     ```shell
+    rm -R ~/yb_docker_data
     mkdir ~/yb_docker_data
 
     docker run -d --name yugabytedb_node1 --net geo-messenger-net \
     -p 7001:7000 -p 9000:9000 -p 5433:5433 \
     -v ~/yb_docker_data/node1:/home/yugabyte/yb_data --restart unless-stopped \
-    yugabytedb/yugabyte:latest \
-    bin/yugabyted start --listen=yugabytedb_node1 \
-    --base_dir=/home/yugabyte/yb_data --daemon=false
-    
-    docker run -d --name yugabytedb_node2 --net geo-messenger-net \
-    -v ~/yb_docker_data/node2:/home/yugabyte/yb_data --restart unless-stopped \
-    yugabytedb/yugabyte:latest \
-    bin/yugabyted start --join=yugabytedb_node1 --listen=yugabytedb_node2 \
-    --base_dir=/home/yugabyte/yb_data --daemon=false
-        
-    docker run -d --name yugabytedb_node3 --net geo-messenger-net \
-    -v ~/yb_docker_data/node3:/home/yugabyte/yb_data --restart unless-stopped \
-    yugabytedb/yugabyte:latest \
-    bin/yugabyted start --join=yugabytedb_node1 --listen=yugabytedb_node3 \
+    yugabytedb/yugabyte:2.15.3.0-b231 \
+    bin/yugabyted start --listen yugabytedb_node1 \
     --base_dir=/home/yugabyte/yb_data --daemon=false
     ```
-2. Confirm the cluster is ready: http://127.0.0.1:7001
 
-### PostgreSQL
-
-You need to deploy PostgreSQL for Kong Gateway. The application can use any of the databases.
-
-Start PostgreSQL in Docker:
-    ```shell
-    mkdir ~/postgresql_data/
-
-    docker run --name postgresql --net geo-messenger-net \
-        -e POSTGRES_USER=postgres -e POSTGRES_PASSWORD=password \
-        -p 5432:5432 \
-        -v ~/postgresql_data/:/var/lib/postgresql/data -d postgres:13.8
-    ```
+2. Confirm the instance is running: http://127.0.0.1:7001
 
 ## Start Minio
 
@@ -120,53 +88,26 @@ Start PostgreSQL in Docker:
 2. Open the Minio console and log in using the `minio_user` as the user and `password` as the password:
     http://127.0.0.1:9101
 
-## Configure Kong Gateway
+## Start Config Server
 
-Kong Gateway is used between application microservices for communication purposes. If you'd like to learn more about Kong Gateway deployment in Docker then check this page: https://docs.konghq.com/gateway/latest/install-and-run/docker/
+Spring Cloud Config Server pulls configuration from the following public repository:
+https://github.com/YugabyteDB-Samples/geo-distributed-messenger-config-repo
 
-1. Connect to Postgres and create the `kong` database:
+1. Start the config server:
     ```shell
-    psql -h 127.0.0.1 --username=postgres
+    cd {project-root-dir}/config-server
 
-    create database kong;
-
-    \q
+    mvn spring-boot:run
     ```
+    Alternatively, you can start the app from your IDE of choice. Just launch the `ConfigServerApplication.java` file.
 
-2. Set up the Kong database by applying migrations:
-    ```shell
-    docker run --rm --net geo-messenger-net \
-    -e "KONG_DATABASE=postgres" \
-    -e "KONG_PG_HOST=postgresql" \
-    -e "KONG_PG_USER=postgres" \
-    -e "KONG_PG_PASSWORD=password" \
-    kong:2.8.1-alpine kong migrations bootstrap
-    ```
-3. Start a container with Kong Gateway:
-    ```shell
-    docker run -d --name kong-gateway \
-    --net geo-messenger-net \
-    -e "KONG_DATABASE=postgres" \
-    -e "KONG_PG_HOST=postgresql" \
-    -e "KONG_PG_USER=postgres" \
-    -e "KONG_PG_PASSWORD=password" \
-    -e "KONG_PROXY_ACCESS_LOG=/dev/stdout" \
-    -e "KONG_ADMIN_ACCESS_LOG=/dev/stdout" \
-    -e "KONG_PROXY_ERROR_LOG=/dev/stderr" \
-    -e "KONG_ADMIN_ERROR_LOG=/dev/stderr" \
-    -e "KONG_ADMIN_LISTEN=0.0.0.0:8001, 0.0.0.0:8444 ssl" \
-    -p 8000:8000 \
-    -p 8443:8443 \
-    -p 127.0.0.1:8001:8001 \
-    -p 127.0.0.1:8444:8444 \
-    kong:2.8.1-alpine
-    ```
+2. Confirm the server is running by requesting a development configuration of the Messaging microservice:
+    http://localhost:8888/messenger/dev
 
-4. Verify the installation:
-    ```shell
-    curl -i -X GET --url http://localhost:8001/services
-    ```
-
+The config repository contains settings for all presently implemented microservices:
+    * `messenger-dev.properties` - development configuration of the Messaging microservice for local testing (used by default)
+    * `messenger-prod.properties` - prod configuration of the Messaging microservice, requires to provide several settings via environment variables. Activated by the `-Pprod` maven profile.
+    
 ## Start Attachments Microservice
 
 1. Navigate to the microservice directory:
@@ -182,48 +123,9 @@ Kong Gateway is used between application microservices for communication purpose
 
 The service will start listening on `http://localhost:8081/` for incoming requests.
 
-## Create Kong Routes
+## Start Messaging Microservice
 
-Use Kong Admin API to configure the Kong Service and Route that will lead to the Attachements microservice.
-
-1. Create a Kong Service:
-    ```shell
-    curl -i -X POST \
-        --url http://localhost:8001/services/ \
-         --data 'name=attachments-service' \
-        --data 'url=http://host.docker.internal:8081'
-    ```
-
-
-    where:
-    * `name` is the name of the Service
-    * `url` is the address of the Attachment application
-    * `host.docker.internal` - an internal Docker DNS name used by containers to connect to the host. Works for Mac OS and Windows. [Extra step needs to be done for Linux](https://stackoverflow.com/questions/24319662/from-inside-of-a-docker-container-how-do-i-connect-to-the-localhost-of-the-mach)
-
-2. Issue the following `POST` requests to add two Routes for the `attachments-service`:
-    ```shell
-    curl -i -X POST http://localhost:8001/services/attachments-service/routes \
-     -d "name=upload-route" \
-     -d "paths[]=/upload" \
-     -d "strip_path=false"
-
-    curl -i -X POST http://localhost:8001/services/attachments-service/routes \
-     -d "name=ping-route" \
-     -d "paths[]=/ping" \
-     -d "strip_path=false"
-    ```
-3. Confirm Kong can reach out to the Attachments service:
-    ```shell
-    curl -i -X GET http://localhost:8000/ping
-
-    (will be proxied to http://host.docker.internal:8081/ping)
-    ```
-
-## Start Messenging Microservice
-
-1. Review and update the database connectivity settings in the `{project-root-dir}/messenger/src/main/resources/application-dev.properties` file (YugabyteDB is used by default).
-
-2. Navigate to the microservice directory:
+1. Start the messaging microservice:
     ```shell
     cd {project-root-dir}/messenger
     ```
