@@ -104,11 +104,11 @@ https://github.com/YugabyteDB-Samples/geo-distributed-messenger-config-repo
 2. Confirm the server is running by requesting a development configuration of the Messaging microservice:
     http://localhost:8888/messenger/dev
 
-The config repository contains settings for all presently implemented microservices:
+The config server clones the repo into the `$HOME/messenger-config` directory. You can override this settings in the server's `application.properties` file.
+
+The repository includes settings for all presently implemented microservices:
 * `messenger-dev.properties` - development configuration of the Messaging microservice for local testing (used by default)
 * `messenger-prod.properties` - prod configuration of the Messaging microservice, requires to provide several settings via environment variables. Activated by the `-Pprod` maven profile.
-
-The config server clones the repo into the `$HOME/messenger-config` directory. You can override this settings in the server's `application.properties` file.
 
 ## Start Attachments Microservice
 
