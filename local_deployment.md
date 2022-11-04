@@ -10,6 +10,8 @@ Follow this instruction if you wish to run the entire application with all the c
   - [Create Custom Network](#create-custom-network)
   - [Start YugabyteDB](#start-yugabyteDB)
   - [Start Minio](#start-minio)
+  - [Start Config Server](#start-config-server)
+  - [Start Discovery Server](#start-discovery-server)
   - [Start Attachments Microservice](#start-attachments-microservice)
   - [Start Messenging Microservice](#start-messenging-microservice)
   - [Clean Resources](#clean-resources)
@@ -72,6 +74,7 @@ docker network create geo-messenger-net
 
 1. Start the Minio service in:
     ```shell
+    rm -R ~/minio/data
     mkdir -p ~/minio/data
 
     docker run -d \
@@ -109,6 +112,23 @@ The config server clones the repo into the `$HOME/messenger-config` directory. Y
 The repository includes settings for all presently implemented microservices:
 * `messenger-dev.properties` - development configuration of the Messaging microservice for local testing (used by default)
 * `messenger-prod.properties` - prod configuration of the Messaging microservice, requires to provide several settings via environment variables. Activated by the `-Pprod` maven profile.
+* `attachments-dev.properties` - development configuration of the Attachments microservice for local testing (used by default)
+* `attachments-prod.properties` - prod configuration of the Attachements microservice, requires to provide several settings via environment variables. Activated by the `-Pprod` maven profile.
+
+## Start Discovery Server
+
+Spring Cloud Discovery Server allows microservices to locate each other easily in a distributed environment. Both Messaging and Attachments microservices register in Discovery Server. The Attachments service exposes a REST endpoint used by the Messaging one for pictures uploading.
+
+1. Start the discovery server:
+    ```shell
+    cd {project-root-dir}/discovery-server
+
+    mvn spring-boot:run
+    ```
+    Alternatively, you can start the app from your IDE of choice. Just launch the `DiscoveryServerApplication.java` file.
+
+2. Confirm the server is running by opening the following address:
+    http://localhost:8761
 
 ## Start Attachments Microservice
 
@@ -161,16 +181,7 @@ docker container rm kong-gateway
 docker kill minio1
 docker container rm minio1
 
-docker kill postgresql
-docker container rm postgresql
-
 docker kill yugabytedb_node1
-docker container rm yugabytedb_node1
-
-docker kill yugabytedb_node2
-docker container rm yugabytedb_node1
-
-docker kill yugabytedb_node2
 docker container rm yugabytedb_node1
 
 docker network rm geo-messenger-net
