@@ -19,12 +19,12 @@ if [ ! -f "/etc/initialized_on_startup" ]; then
 
     sudo mkdir /opt/messenger
     sudo chmod -R 777 /opt/messenger 
-    git clone https://github.com/YugabyteDB-Samples/geo-distributed-messenger.git /opt/messenger
+    git clone https://github.com/YugabyteDB-Samples/geo-distributed-messenger-spring-cloud.git /opt/messenger
 
     #Build config and discovery servers
-    cd /opt/config-server
+    cd /opt/messenger/config-server
     mvn clean package
-    cd /opt/discovery-server
+    cd /opt/messenger/discovery-server
     mvn clean package
 
     #Create application executables
