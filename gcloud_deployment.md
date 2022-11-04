@@ -10,9 +10,7 @@ The geo-messenger is designed to function across geogrpahies by definition. The 
   - [Prerequisite](#prerequisite)
   - [Architecture](#architecture)
   - [Create Google Project](#create-google-project)
-  - [Create Service Account](#create-service-account)
   - [Create Custom Network](#create-custom-network)
-  - [Create Runtime Configurator](#create-runtime-configurator)
   - [Enable Google Cloud Storage](#enable-google-cloud-storage)
   - [Create Instance Templates](#create-instance-templates)
   - [Start Application Instances](#start-application-instances)
@@ -33,19 +31,7 @@ The geo-messenger is designed to function across geogrpahies by definition. The 
 
 ## Architecture
 
-![architecture-geo-distributed](https://user-images.githubusercontent.com/1537233/197902602-a8a627a3-5868-4cf8-bfd7-2ee086a79304.png)
-
-The microservice instances and Kong Gateway nodes are deployed across multiple cloud regions. 
-
-The global cloud load balancer intercepts the user traffic at the PoP (point-of-presence) and forwards to the nearest application instance. 
-
-The Messaging microservice stores the application data in your YugabyteDB cluster (need to be provisioned by you separately). The Attachments microservice uploads picture to Google Cloud Storage.
-
-Refer to the following articles for a detailed architectural overview:
-1. [Automating Java Application Deployment Across Multiple Cloud Regions](https://dzone.com/articles/automating-java-application-deployment-across-mult)
-2. [Geo-distributed API Layer With Kong Gateway](https://dzone.com/articles/geo-distributed-api-layer-with-kong-gateway)
-3. [Using Global Cloud Load Balancer to Route User Requests to App Instances](https://dzone.com/articles/using-global-cloud-load-balancer-to-route-user-req)
-4. TBD - multi-region YugabyteDB deployment
+TBD
 
 ## Create Google Project
 
@@ -70,36 +56,6 @@ Refer to the following articles for a detailed architectural overview:
     ```
 
 5. Open Google Console and enable a billing account for the project: `https://console.cloud.google.com`
-
-## Create Service Account 
-
-This is an OPTIONAL step. Follow the steps below only if you need to run the Attachments service on your local machine and wish to store pictures in Google Cloud Storage. Otherwise, skip this section!
-
-1. Create the service account:
-    ```shell
-    gcloud iam service-accounts create google-storage-account
-
-    gcloud projects add-iam-policy-binding geo-distributed-messenger \
-        --member="serviceAccount:google-storage-account@geo-distributed-messenger.iam.gserviceaccount.com" \
-        --role=roles/storage.admin
-
-    gcloud projects add-iam-policy-binding geo-distributed-messenger \
-        --member="serviceAccount:google-storage-account@geo-distributed-messenger.iam.gserviceaccount.com" \
-        --role=roles/viewer
-    ```
-2. Generate the key:
-    ```shell
-    cd {project_dir}/glcoud
-
-    gcloud iam service-accounts keys create google-storage-account-key.json \
-        --iam-account=google-storage-account@geo-distributed-messenger.iam.gserviceaccount.com
-    ```
-3. Add a special environment variable. The attachments service will use it while working with the Cloud Storage SDK:
-    ```shell
-    echo 'export GOOGLE_APPLICATION_CREDENTIALS={absolute_path_to_the_key}/google-storage-account-key.json' >> ~/.bashrc 
-
-    echo 'export GOOGLE_APPLICATION_CREDENTIALS={absolute_path_to_the_key}/google-storage-account-key.json' >> ~/.zshrc
-    ```
 
 ## Create Custom Network
 
@@ -168,50 +124,8 @@ This is an OPTIONAL step. Follow the steps below only if you need to run the Att
         --direction=ingress \
         --target-tags=allow-http-my-machines \
         --source-ranges=0.0.0.0/0 \
-        --rules=tcp:80
+        --rules=tcp:80,tcp:8888,tcp:8761
     ```
-
-## Create Runtime Configurator
-
-This step is optional if you don't plan to change database connectivity settings in runtime. By default, the database settings are provided in the `application.properties` file along with other properties. The Runtime Configurator is useful when you need an instance of Messaging microservice to connect to a specific database deployment or node from its region.
-
-### Create Config
-
-1. Enable [Runtime Configurator APIs](https://cloud.google.com/deployment-manager/runtime-configurator)
-
-2. Create a `RuntimeConfig` for the Messaging microservice:
-    ```shell
-    gcloud beta runtime-config configs create messaging-microservice-settings
-    ```
-
-### Specify Database Configuration Settings
-
-An instance of the Messaging microservice subscribes for updates on the following configuration variables:
-```shell
-{REGION}/spring.datasource.url
-{REGION}/spring.datasource.username
-{REGION}/spring.datasource.password
-{REGION}/yugabytedb.connection.type
-```
-where:
-* `{REGION}` is the region the VM was started in. You provide the region name via the `-r` parameter of the `./create_instance_template.sh` script.
-* `yugabytedb.connection.type` - can be set to `standard`, `replica` or `geo`. Refer to the section below for details.
-
-Once an instance of the microservice is started, you can use the [Runtime Configurator APIs](https://cloud.google.com/deployment-manager/runtime-configurator/set-and-get-variables) to set and update those variable.
-
-As an example, this is how to update the database connectivity settings for all the VMs started in the `us-west2` region:
-```shell
-gcloud beta runtime-config configs variables set us-west2/spring.datasource.username \
-    {NEW_DATABASE_USERNAME} --config-name messaging-microservice-settings --is-text
-gcloud beta runtime-config configs variables set us-west2/spring.datasource.password \
-    {NEW_DATABASE_PASSWORD} --config-name messaging-microservice-settings --is-text
-gcloud beta runtime-config configs variables set us-west2/yugabytedb.connection.type standard \
-    --config-name messaging-microservice-settings --is-text
-
-gcloud beta runtime-config configs variables set us-west2/spring.datasource.url \
-    {NEW_DATABASE_URL} --config-name messaging-microservice-settings --is-text
-```
-Note, the `spring.datasource.url` parameter MUST be updated the last because the application logic watches for its changes.
 
 ## Enable Google Cloud Storage
 
@@ -226,8 +140,6 @@ Use the `gcloud/create_instance_template.sh` script to create instance templates
     -i {PROJECT_ID} \
     -r {CLOUD_REGION_NAME} \
     -s {NETWORK_SUBNET_NAME} \
-    -d {ENABLE_DYNAMIC_RUNTIME_CONFIGURATOR}
-    -a {APP_PORT_NUMBER} \
     -c "{DB_CONNECTION_ENDPOINT}" \
     -u {DB_USER} \
     -p {DB_PWD} \
@@ -250,8 +162,6 @@ and `DB_SCHEMA_FILE` can be set to:
         -i geo-distributed-messenger \
         -r us-west2 \
         -s us-west-subnet \
-        -d false \
-        -a 80 \
         -c "jdbc:postgresql://ADDRESS:5433/yugabyte?ssl=true&sslmode=require" \
         -u {DB_USER} \
         -p {DB_PWD} \
@@ -263,8 +173,6 @@ and `DB_SCHEMA_FILE` can be set to:
         -i geo-distributed-messenger \
         -r us-central1 \
         -s us-central-subnet \
-        -d false \
-        -a 80 \
         -c "jdbc:postgresql://ADDRESS:5433/yugabyte?ssl=true&sslmode=require" \
         -u {DB_USER} \
         -p {DB_PWD} \
@@ -276,8 +184,6 @@ and `DB_SCHEMA_FILE` can be set to:
         -i geo-distributed-messenger \
         -r us-east4 \
         -s us-east-subnet \
-        -d false \
-        -a 80 \
         -c "jdbc:postgresql://ADDRESS:5433/yugabyte?ssl=true&sslmode=require" \
         -u {DB_USER} \
         -p {DB_PWD} \
@@ -291,8 +197,6 @@ and `DB_SCHEMA_FILE` can be set to:
         -i geo-distributed-messenger \
         -r europe-west3 \
         -s europe-west-subnet \
-        -d false \
-        -a 80 \
         -c "jdbc:postgresql://ADDRESS:5433/yugabyte?ssl=true&sslmode=require" \
         -u {DB_USER} \
         -p {DB_PWD} \
@@ -306,8 +210,6 @@ and `DB_SCHEMA_FILE` can be set to:
         -i geo-distributed-messenger \
         -r asia-east1 \
         -s asia-east-subnet \
-        -d false \
-        -a 80 \
         -c "jdbc:postgresql://ADDRESS:5433/yugabyte?ssl=true&sslmode=require" \
         -u {DB_USER} \
         -p {DB_PWD} \
