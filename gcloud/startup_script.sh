@@ -22,8 +22,10 @@ if [ ! -f "/etc/initialized_on_startup" ]; then
     git clone https://github.com/YugabyteDB-Samples/geo-distributed-messenger-spring-cloud.git /opt/messenger
 
     #Build config and discovery servers
+    sudo mkdir /opt/messenger-config
     cd /opt/messenger/config-server
-    mvn clean package
+    mvn clean package -Pprod
+    
     cd /opt/messenger/discovery-server
     mvn clean package
 
