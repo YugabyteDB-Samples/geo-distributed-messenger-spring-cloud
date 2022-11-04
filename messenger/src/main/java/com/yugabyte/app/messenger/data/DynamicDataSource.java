@@ -64,7 +64,7 @@ public class DynamicDataSource extends AbstractRoutingDataSource {
         cfg.setPassword(password);
         cfg.setSchema(schemaName);
         cfg.setMaximumPoolSize(maxPoolSize);
-
+        
         if (!dsClassName.isBlank()) {
             cfg.setDataSourceClassName(dsClassName);
             System.out.println("Setting data source class " + dsClassName);
@@ -80,6 +80,8 @@ public class DynamicDataSource extends AbstractRoutingDataSource {
                     "set session characteristics as transaction read only;" +
                             "set yb_read_from_followers = true;");
         }
+
+        System.out.printf("Initializing new data source for '%s' connection%n", url);
 
         HikariDataSource ds = new HikariDataSource(cfg);
 
