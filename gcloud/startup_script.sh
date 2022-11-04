@@ -57,7 +57,7 @@ nohup java -jar /opt/messenger/config-server/target/config-server-1.0.0-SNAPSHOT
 
 sleep 15
 
-nohup java -jar /opt/messenger/messenger/target/geo-distributed-messenger-1.0.0-SNAPSHOT.jar &
+nohup java -jar /opt/messenger/messenger/target/messenger-1.0.0-SNAPSHOT.jar &
 nohup java -jar /opt/messenger/attachments/target/attachments-1.0.0-SNAPSHOT.jar &
 
 
