@@ -47,7 +47,8 @@ export PROJECT_ID=$(curl http://metadata.google.internal/computeMetadata/v1/inst
 export REGION=$(curl http://metadata.google.internal/computeMetadata/v1/instance/attributes/REGION -H "Metadata-Flavor: Google")
 
 # Configuring env variable for the Messaging microservice
-export DB_URL=$(curl http://metadata.google.internal/computeMetadata/v1/instance/attributes/DB_URL -H "Metadata-Flavor: Google")
+export DB_PRIMARY_ENDPOINT=$(curl http://metadata.google.internal/computeMetadata/v1/instance/attributes/DB_PRIMARY_ENDPOINT -H "Metadata-Flavor: Google")
+export DB_ADDITIONAL_ENDPOINTS=$(curl http://metadata.google.internal/computeMetadata/v1/instance/attributes/DB_ADDITIONAL_ENDPOINTS -H "Metadata-Flavor: Google")
 export DB_USER=$(curl http://metadata.google.internal/computeMetadata/v1/instance/attributes/DB_USER -H "Metadata-Flavor: Google")
 export DB_PWD=$(curl http://metadata.google.internal/computeMetadata/v1/instance/attributes/DB_PWD -H "Metadata-Flavor: Google")
 export DB_MODE=$(curl http://metadata.google.internal/computeMetadata/v1/instance/attributes/DB_MODE -H "Metadata-Flavor: Google")

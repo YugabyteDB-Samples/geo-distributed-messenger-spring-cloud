@@ -12,7 +12,7 @@
         <java.version>17</java.version>
         <vaadin.version>23.1.2</vaadin.version>
         <selenium.version>4.1.2</selenium.version>
-        <yugabytedb.jdbc.version>42.3.4</yugabytedb.jdbc.version>
+        <yugabytedb.jdbc.version>42.3.3</yugabytedb.jdbc.version>
         <postgresql.version>42.4.0</postgresql.version>
         <start-class>com.yugabyte.app.messenger.Application</start-class>
     </properties>

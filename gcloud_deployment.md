@@ -140,20 +140,23 @@ Use the `gcloud/create_instance_template.sh` script to create instance templates
     -i {PROJECT_ID} \
     -r {CLOUD_REGION_NAME} \
     -s {NETWORK_SUBNET_NAME} \
-    -c "{DB_CONNECTION_ENDPOINT}" \
+    -c {DB_CONNECTION_ENDPOINT} \
+    -a {DB_ADDITIONAL_ENDPOINTS} \
     -u {DB_USER} \
     -p {DB_PWD} \
     -m {DB_MODE} \
     -f {DB_SCHEMA_FILE}
 ```
-where `DB_MODE` can be set to one of these values:
-* 'standard' - the data source is connected to a standard/regular node. 
-* 'replica' - the connection goes via a replica node.
-* 'geo' - the data source is connected to a geo-partitioned cluster.
-
-and `DB_SCHEMA_FILE` can be set to:
-* `classpath:messenger_schema.sql` - a basic database schema with NO tablespaces and partitions
-* `classpath:messenger_schema_partitioned.sql` - a schema with tablespaces belonging to specific cloud regions and geo-partitions.
+where
+* `DB_CONNECTION_ENDPOINT` - is a YugabyteDB node IP address or DNS name
+* `DB_ADDITIONAL_ENDPOINTS` - a comma-separated list of other YugabyteDB nodes to use in the connection pool. The format is `node1_address:5433,node2_address:5433`.
+* `DB_MODE` can be set to one of these values:
+    * 'standard' - the data source is connected to a standard/regular node. 
+    * 'replica' - the connection goes via a replica node.
+    * 'geo' - the data source is connected to a geo-partitioned cluster.
+* `DB_SCHEMA_FILE` can be set to:
+    * `classpath:messenger_schema.sql` - a basic database schema with NO tablespaces and partitions
+    * `classpath:messenger_schema_partitioned.sql` - a schema with tablespaces belonging to specific cloud regions and geo-partitions.
 
 1. Create a template for the US West, Central and East regions:
     ```shell
@@ -162,7 +165,8 @@ and `DB_SCHEMA_FILE` can be set to:
         -i geo-distributed-messenger \
         -r us-west2 \
         -s us-west-subnet \
-        -c "jdbc:postgresql://ADDRESS:5433/yugabyte?ssl=true&sslmode=require" \
+        -c {DB_CONNECTION_ENDPOINT} \
+        -a {DB_ADDITIONAL_ENDPOINTS} \
         -u {DB_USER} \
         -p {DB_PWD} \
         -m standard \
@@ -173,7 +177,8 @@ and `DB_SCHEMA_FILE` can be set to:
         -i geo-distributed-messenger \
         -r us-central1 \
         -s us-central-subnet \
-        -c "jdbc:postgresql://ADDRESS:5433/yugabyte?ssl=true&sslmode=require" \
+        -c {DB_CONNECTION_ENDPOINT} \
+        -a {DB_ADDITIONAL_ENDPOINTS} \
         -u {DB_USER} \
         -p {DB_PWD} \
         -m standard \
@@ -184,7 +189,8 @@ and `DB_SCHEMA_FILE` can be set to:
         -i geo-distributed-messenger \
         -r us-east4 \
         -s us-east-subnet \
-        -c "jdbc:postgresql://ADDRESS:5433/yugabyte?ssl=true&sslmode=require" \
+        -c {DB_CONNECTION_ENDPOINT} \
+        -a {DB_ADDITIONAL_ENDPOINTS} \
         -u {DB_USER} \
         -p {DB_PWD} \
         -m standard \
@@ -197,7 +203,8 @@ and `DB_SCHEMA_FILE` can be set to:
         -i geo-distributed-messenger \
         -r europe-west3 \
         -s europe-west-subnet \
-        -c "jdbc:postgresql://ADDRESS:5433/yugabyte?ssl=true&sslmode=require" \
+        -c {DB_CONNECTION_ENDPOINT} \
+        -a {DB_ADDITIONAL_ENDPOINTS} \
         -u {DB_USER} \
         -p {DB_PWD} \
         -m standard \
@@ -210,7 +217,8 @@ and `DB_SCHEMA_FILE` can be set to:
         -i geo-distributed-messenger \
         -r asia-east1 \
         -s asia-east-subnet \
-        -c "jdbc:postgresql://ADDRESS:5433/yugabyte?ssl=true&sslmode=require" \
+        -c {DB_CONNECTION_ENDPOINT} \
+        -a {DB_ADDITIONAL_ENDPOINTS} \
         -u {DB_USER} \
         -p {DB_PWD} \
         -m standard \
@@ -302,7 +310,7 @@ Reserve IP addresses that application users will use to reach the load balancer:
 1. Create a [health check](https://cloud.google.com/load-balancing/docs/health-checks) for application instances:
     ```shell
     gcloud compute health-checks create http load-balancer-http-basic-check \
-        --check-interval=20s --timeout=5s \
+        --check-interval=5s --timeout=3s \
         --healthy-threshold=2 --unhealthy-threshold=2 \
         --request-path=/login \
         --port 80

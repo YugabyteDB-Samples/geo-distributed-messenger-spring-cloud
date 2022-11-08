@@ -2,6 +2,7 @@ package com.yugabyte.app.messenger.data;
 
 import java.sql.SQLException;
 import java.util.HashMap;
+import java.util.Properties;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Scope;
@@ -22,10 +23,12 @@ public class DynamicDataSource extends AbstractRoutingDataSource {
     public final static Integer CURRENT_DATA_SOURCE_KEY = 1;
 
     private String dsClassName;
-    private String url;
+    private String primaryEndpoint;
+    private int portNumber;
     private String username;
     private String password;
     private String schemaName;
+    private String databaseName;
     private String yugabyteConnType;
     private String additionalEndpoints;
     private int maxPoolSize;
@@ -33,18 +36,22 @@ public class DynamicDataSource extends AbstractRoutingDataSource {
     private HashMap<Object, Object> dataSources = new HashMap<>();
 
     public DynamicDataSource(
-            @Value("${spring.datasource.hikari.data-source-class-name:}") String dsClassName,
-            @Value("${spring.datasource.url}") String url,
-            @Value("${spring.datasource.username}") String username,
-            @Value("${spring.datasource.password}") String password,
+            @Value("${dataSourceClassName}") String dsClassName,
+            @Value("${dataSource.serverName}") String primaryEndpoint,
+            @Value("${dataSource.portNumber:5433}") int portNumber,
+            @Value("${dataSource.user}") String username,
+            @Value("${dataSource.password}") String password,
+            @Value("${dataSource.databaseName}") String databaseName,
             @Value("${spring.datasource.hikari.maximum-pool-size:5}") int maxPoolSize,
             @Value("${spring.datasource.hikari.schema:public}") String schemaName,
-            @Value("${yugabytedb.additionalEndpoints:}") String additionalEndpoints,
+            @Value("${dataSource.additionalEndpoints:}") String additionalEndpoints,
             @Value("${yugabytedb.connection.type:standard}") String yugabyteConnType) {
         this.dsClassName = dsClassName;
-        this.url = url;
+        this.primaryEndpoint = primaryEndpoint;
+        this.portNumber = portNumber;
         this.username = username;
         this.password = password;
+        this.databaseName = databaseName;
         this.maxPoolSize = maxPoolSize;
         this.schemaName = schemaName;
         this.yugabyteConnType = yugabyteConnType;
@@ -59,19 +66,23 @@ public class DynamicDataSource extends AbstractRoutingDataSource {
 
     private void initDataSource() {
         HikariConfig cfg = new HikariConfig();
-        cfg.setJdbcUrl(url);
-        cfg.setUsername(username);
-        cfg.setPassword(password);
+
+        cfg.setDataSourceClassName(dsClassName);
         cfg.setSchema(schemaName);
         cfg.setMaximumPoolSize(maxPoolSize);
-        
-        if (!dsClassName.isBlank()) {
-            cfg.setDataSourceClassName(dsClassName);
-            System.out.println("Setting data source class " + dsClassName);
-        }
+
+        Properties dsProps = new Properties();
+
+        dsProps.setProperty("serverName", primaryEndpoint);
+        dsProps.setProperty("portNumber", String.valueOf(portNumber));
+        dsProps.setProperty("databaseName", databaseName);
+        dsProps.setProperty("user", username);
+        dsProps.setProperty("password", password);
 
         if (!additionalEndpoints.isBlank())
-            cfg.addDataSourceProperty("additionalEndpoints", additionalEndpoints);
+            dsProps.setProperty("additionalEndpoints", additionalEndpoints);
+
+        cfg.setDataSourceProperties(dsProps);
 
         if (isReplicaConnection()) {
             System.out.println("Setting read only session characteristics for the replica connection");
@@ -81,14 +92,16 @@ public class DynamicDataSource extends AbstractRoutingDataSource {
                             "set yb_read_from_followers = true;");
         }
 
-        System.out.printf("Initializing new data source for '%s' connection%n", url);
+        System.out.printf(
+                "Initializing new data source with the primary endpoint '%s' %n and additional endpoints '%s'%n",
+                primaryEndpoint, additionalEndpoints);
 
         HikariDataSource ds = new HikariDataSource(cfg);
 
         dataSources.put(CURRENT_DATA_SOURCE_KEY, ds);
         setDefaultTargetDataSource(ds);
 
-        System.out.printf("Initialized new data source for '%s' connection%n", url);
+        System.out.printf("Initialized new data source for '%s' connection%n", ds.getJdbcUrl());
     }
 
     @Override
@@ -97,7 +110,7 @@ public class DynamicDataSource extends AbstractRoutingDataSource {
     }
 
     public void createNewDataSource(String url, String username, String password, String yugabyteConnType) {
-        this.url = url;
+        this.primaryEndpoint = url;
         this.username = username;
         this.password = password;
         this.yugabyteConnType = yugabyteConnType;
