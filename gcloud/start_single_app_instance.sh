@@ -27,7 +27,7 @@ gcloud compute instances create $name \
         --image-family=ubuntu-1804-lts --image-project=ubuntu-os-cloud \
         --tags=geo-messenger-instance, \
         --metadata-from-file=startup-script=startup_script.sh, \
-        --metadata=DB_PRIMARY_ENDPOINT=$primary_endpoint,DB_ADDITIONAL_ENDPOINTS=$additional_endpoints,DB_USER=$user,DB_PWD=$pwd,DB_MODE=$mode,DB_SCHEMA_FILE=$schema_file,REGION=$region,PROJECT_ID=$project_id
+        --metadata=^::^DB_PRIMARY_ENDPOINT=$primary_endpoint::DB_ADDITIONAL_ENDPOINTS=$additional_endpoints::DB_USER=$user::DB_PWD=$pwd::DB_MODE=$mode::DB_SCHEMA_FILE=$schema_file::REGION=$region::PROJECT_ID=$project_id
 
 if [ $? -eq 0 ]; then
     echo "Instance $name has been created!"

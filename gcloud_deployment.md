@@ -149,7 +149,7 @@ Use the `gcloud/create_instance_template.sh` script to create instance templates
 ```
 where
 * `DB_CONNECTION_ENDPOINT` - is a YugabyteDB node IP address or DNS name
-* `DB_ADDITIONAL_ENDPOINTS` - a comma-separated list of other YugabyteDB nodes to use in the connection pool. The format is `node1_address:5433,node2_address:5433`.
+* `DB_ADDITIONAL_ENDPOINTS` - a comma-separated list of other YugabyteDB nodes to use in the connection pool. The format is `"node1_address:5433,node2_address:5433"`.
 * `DB_MODE` can be set to one of these values:
     * 'standard' - the data source is connected to a standard/regular node. 
     * 'replica' - the connection goes via a replica node.

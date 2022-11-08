@@ -1,6 +1,5 @@
 package com.yugabyte.app.messenger.data;
 
-import java.sql.SQLException;
 import java.util.HashMap;
 import java.util.Properties;
 

@@ -35,8 +35,11 @@ public class AuthenticatedUser {
         Optional<Authentication> authentication = getAuthentication();
 
         if (authentication.isPresent()) {
+            System.out.println("Principal presents!");
             UserPrincipal userToken = (UserPrincipal) authentication.get().getPrincipal();
             return Optional.of(userToken.getProfileData());
+        } else {
+            System.out.println("Principal DOES NOT present");
         }
 
         Optional<Profile> profile = authentication.map(authToken -> userRepository.findByEmail(authToken.getName()));
