@@ -12,6 +12,7 @@
 
 # Package Files #
 *.jar
+!maven-wrapper.jar
 !release/*.jar
 *.war
 *.nar
