@@ -10,4 +10,9 @@ RUN ./mvnw dependency:resolve
 
 COPY src ./src
 
+COPY wait-for-it.sh docker-entrypoint.sh ./
+RUN ["chmod", "+x", "docker-entrypoint.sh"]
+RUN ["chmod", "+x", "wait-for-it.sh"]
+
+ENTRYPOINT ["./docker-entrypoint.sh"]
 CMD ["./mvnw", "spring-boot:run"]

@@ -59,7 +59,7 @@ docker network create geo-messenger-net
     mkdir ~/yb_docker_data
 
     docker run -d --name yugabytedb_node1 --net geo-messenger-net \
-    -p 7001:7000 -p 9000:9000 -p 5433:5433 \
+    -p 7001:7000 -p 5433:5433 \
     -v ~/yb_docker_data/node1:/home/yugabyte/yb_data --restart unless-stopped \
     yugabytedb/yugabyte:2.15.3.0-b231 \
     bin/yugabyted start --listen yugabytedb_node1 \
@@ -79,8 +79,8 @@ docker network create geo-messenger-net
 
     docker run -d \
     --net geo-messenger-net \
-    -p 9100:9000 \
-    -p 9101:9001 \
+    -p 9000:9000 \
+    -p 9001:9001 \
     --name minio1 \
     -v ~/minio/data:/data \
     -e "MINIO_ROOT_USER=minio_user" \
@@ -89,7 +89,7 @@ docker network create geo-messenger-net
     ```
 
 2. Open the Minio console and log in using the `minio_user` as the user and `password` as the password:
-    http://127.0.0.1:9101
+    http://127.0.0.1:9001
 
 ## Start Config Server
 

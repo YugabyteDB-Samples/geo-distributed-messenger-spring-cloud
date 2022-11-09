@@ -1,0 +1,98 @@
+version: '3.9'
+services:
+  config-server:
+    image: config-server:latest
+    build: ./config-server
+
+  discovery-server:
+    image: discovery-server:latest
+    build: ./discovery-server
+    ports:
+      - "8761:8761"
+
+  minio:
+    image: quay.io/minio/minio:RELEASE.2022-08-26T19-53-15Z
+    volumes:
+      - minio_data:/data
+    ports:
+      - "9005:9005"
+      - "9000:9000"
+    environment:
+      MINIO_ROOT_USER: minio_user
+      MINIO_ROOT_PASSWORD: password
+    command: server /data --console-address ":9005"
+
+  yb-master-1:
+    image: yugabytedb/yugabyte:2.15.3.0-b231
+    volumes:
+      - yb-master-data-1:/mnt/master
+    command:
+      [
+        "/home/yugabyte/bin/yb-master",
+        "--fs_data_dirs=/mnt/master",
+        "--webserver_port=7001",
+        "--master_addresses=yb-master-1:7100",
+        "--rpc_bind_addresses=yb-master-1:7100",
+        "--replication_factor=1",
+        "--ysql_num_shards_per_tserver=1"
+      ]
+    ports:
+      - "7001:7001"
+
+  yb-tserver-1:
+    image: yugabytedb/yugabyte:2.15.3.0-b231
+    depends_on:
+      - yb-master-1
+    volumes:
+      - yb-tserver-data-1:/mnt/tserver
+    command:
+      [
+        "/home/yugabyte/bin/yb-tserver",
+        "--fs_data_dirs=/mnt/tserver",
+        "--webserver_port=9001",
+        "--start_pgsql_proxy",
+        "--rpc_bind_addresses=yb-tserver-1:9100",
+        "--tserver_master_addrs=yb-master-1:7100",
+        "--ysql_num_shards_per_tserver=1"
+      ]
+    ports:
+      - "5433:5433"
+
+  attachments:
+    image: attachments:latest
+    build: ./attachments
+    depends_on:
+      - config-server
+      - discovery-server
+      - minio
+    environment:
+      - CONFIG_SERVER_HOST=config-server
+      - CONFIG_SERVER_PORT=8888
+      - DISCOVERY_SERVER_HOST=discovery-server
+      - DISCOVERY_SERVER_PORT=8761
+      - MINIO_HOST=minio
+      - MINIO_PORT=9000
+
+  messenger:
+    image: messenger:latest
+    build: ./messenger
+    depends_on:
+      - config-server
+      - discovery-server
+      - yb-tserver-1
+      - yb-master-1
+    environment:
+      - CONFIG_SERVER_HOST=config-server
+      - CONFIG_SERVER_PORT=8888
+      - DISCOVERY_SERVER_HOST=discovery-server
+      - DISCOVERY_SERVER_PORT=8761
+      - DB_PRIMARY_ENDPOINT=yb-tserver-1
+      - DB_PORT=5433
+      - DB_DATASOURCE_NAME=com.yugabyte.ysql.YBClusterAwareDataSource
+    ports:
+      - "8080:8080"
+
+volumes:
+  minio_data:
+  yb-master-data-1:
+  yb-tserver-data-1:
