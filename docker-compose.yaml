@@ -22,41 +22,66 @@ services:
       MINIO_ROOT_PASSWORD: password
     command: server /data --console-address ":9005"
 
+  yb-master-0:
+    image: yugabytedb/yugabyte:2.15.3.0-b231
+    container_name: yb-master-0
+    hostname: yb-master-0.zone.region.cloud
+    command: bash -c "rm -rf /tmp/.yb* ; /home/yugabyte/bin/yb-master --fs_data_dirs=/home/yugabyte/data --placement_cloud=cloud --placement_region=region --placement_zone=zone --rpc_bind_addresses=yb-master-0.zone.region.cloud:7100 --master_addresses=yb-master-0:7100,yb-master-1:7100,yb-master-2:7100 --replication_factor=3 --rpc_connection_timeout_ms=15000"
+    ports:
+      - "7001:7000"
+
+  yb-tserver-0:
+    image: yugabytedb/yugabyte:2.15.3.0-b231
+    container_name: yb-tserver-0
+    hostname: yb-tserver-0.zone.region.cloud
+    command: bash -c " rm -rf /tmp/.yb* ; /home/yugabyte/bin/yb-tserver --placement_cloud=cloud --placement_region=region --placement_zone=zone --enable_ysql=true --fs_data_dirs=/home/yugabyte/data --rpc_bind_addresses=yb-tserver-0.zone.region.cloud:9100 --tserver_master_addrs=yb-master-0:7100,yb-master-1:7100,yb-master-2:7100 --ysql_num_shards_per_tserver=2 --rpc_connection_timeout_ms=15000"
+    ports:
+      - "9001:9000"
+      - "5433:5433"
+    depends_on:
+      - yb-master-2
+
   yb-master-1:
     image: yugabytedb/yugabyte:2.15.3.0-b231
-    volumes:
-      - yb-master-data-1:/mnt/master
-    command:
-      [
-        "/home/yugabyte/bin/yb-master",
-        "--fs_data_dirs=/mnt/master",
-        "--webserver_port=7001",
-        "--master_addresses=yb-master-1:7100",
-        "--rpc_bind_addresses=yb-master-1:7100",
-        "--replication_factor=1",
-        "--ysql_num_shards_per_tserver=1"
-      ]
+    container_name: yb-master-1
+    hostname: yb-master-1.zone.region.cloud
+    command: bash -c " rm -rf /tmp/.yb* ; /home/yugabyte/bin/yb-master --fs_data_dirs=/home/yugabyte/data --placement_cloud=cloud --placement_region=region --placement_zone=zone --rpc_bind_addresses=yb-master-1.zone.region.cloud:7100 --master_addresses=yb-master-0:7100,yb-master-1:7100,yb-master-2:7100 --replication_factor=3 --rpc_connection_timeout_ms=15000"
     ports:
-      - "7001:7001"
+      - "7002:7000"
+    depends_on:
+      - yb-master-0
 
   yb-tserver-1:
     image: yugabytedb/yugabyte:2.15.3.0-b231
+    container_name: yb-tserver-1
+    hostname: yb-tserver-1.zone.region.cloud
+    command: bash -c " rm -rf /tmp/.yb* ; /home/yugabyte/bin/yb-tserver --placement_cloud=cloud --placement_region=region --placement_zone=zone --enable_ysql=true --fs_data_dirs=/home/yugabyte/data --rpc_bind_addresses=yb-tserver-1.zone.region.cloud:9100 --tserver_master_addrs=yb-master-0:7100,yb-master-1:7100,yb-master-2:7100 --ysql_num_shards_per_tserver=2 --rpc_connection_timeout_ms=15000"
+    ports:
+      - "9002:9000"
+      - "5434:5433"
+    depends_on:
+      - yb-master-2
+
+  yb-master-2:
+    image: yugabytedb/yugabyte:2.15.3.0-b231
+    container_name: yb-master-2
+    hostname: yb-master-2.zone.region.cloud
+    command: bash -c " rm -rf /tmp/.yb* ; /home/yugabyte/bin/yb-master --fs_data_dirs=/home/yugabyte/data --placement_cloud=cloud --placement_region=region --placement_zone=zone --rpc_bind_addresses=yb-master-2.zone.region.cloud:7100 --master_addresses=yb-master-0:7100,yb-master-1:7100,yb-master-2:7100 --replication_factor=3 --rpc_connection_timeout_ms=15000"
+    ports:
+      - "7003:7000"
     depends_on:
       - yb-master-1
-    volumes:
-      - yb-tserver-data-1:/mnt/tserver
-    command:
-      [
-        "/home/yugabyte/bin/yb-tserver",
-        "--fs_data_dirs=/mnt/tserver",
-        "--webserver_port=9001",
-        "--start_pgsql_proxy",
-        "--rpc_bind_addresses=yb-tserver-1:9100",
-        "--tserver_master_addrs=yb-master-1:7100",
-        "--ysql_num_shards_per_tserver=1"
-      ]
+
+  yb-tserver-2:
+    image: yugabytedb/yugabyte:2.15.3.0-b231
+    container_name: yb-tserver-2
+    hostname: yb-tserver-2.zone.region.cloud
+    command: bash -c " rm -rf /tmp/.yb* ; /home/yugabyte/bin/yb-tserver --placement_cloud=cloud --placement_region=region --placement_zone=zone --enable_ysql=true --fs_data_dirs=/home/yugabyte/data --rpc_bind_addresses=yb-tserver-2.zone.region.cloud:9100 --tserver_master_addrs=yb-master-0:7100,yb-master-1:7100,yb-master-2:7100 --ysql_num_shards_per_tserver=2 --rpc_connection_timeout_ms=15000"
     ports:
-      - "5433:5433"
+      - "9003:9000"
+      - "5435:5433"
+    depends_on:
+      - yb-master-2
 
   attachments:
     image: attachments:latest
@@ -86,13 +111,12 @@ services:
       - CONFIG_SERVER_PORT=8888
       - DISCOVERY_SERVER_HOST=discovery-server
       - DISCOVERY_SERVER_PORT=8761
-      - DB_PRIMARY_ENDPOINT=yb-tserver-1
+      - DB_PRIMARY_ENDPOINT=yb-tserver-1.zone.region.cloud
       - DB_PORT=5433
       - DB_DATASOURCE_NAME=com.yugabyte.ysql.YBClusterAwareDataSource
+      - DB_ADDITIONAL_ENDPOINTS=yb-tserver-2.zone.region.cloud:5433,yb-tserver-3.zone.region.cloud:5433
     ports:
       - "8080:8080"
 
 volumes:
   minio_data:
-  yb-master-data-1:
-  yb-tserver-data-1:
