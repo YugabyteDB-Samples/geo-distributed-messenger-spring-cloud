@@ -1,0 +1,34 @@
+image:
+  file: .gitpod.Dockerfile
+
+ports:
+  - port: 8080 # Application frontend
+    onOpen: open-browser
+  - port: 7001 # YugabyteDB UI console
+    onOpen: notify
+  - port: 9005 # Minio console
+    onOpen: notify
+
+  # Disable notifications about the following ports
+  - port: 5433
+    onOpen: ignore
+  - port: 9042
+    onOpen: ignore
+  - port: 7100
+    onOpen: ignore
+  - port: 9001
+    onOpen: ignore
+  - port: 9100
+    onOpen: ignore
+  - port: 12000
+    onOpen: ignore
+  - port: 13000
+    onOpen: ignore
+
+tasks:
+  - name: YugabyteDB Cluster
+    command: |
+      yugabyted start --base_dir=$YB_STORE/node1 --listen 127.0.0.1 --master_webserver_port=$YB_WEB_PORT --tserver_webserver_port=$TSERVER_WEB_PORT
+
+  - name: Minio
+    command: minio server $MINIO_STORE --console-address :$MINIO_CONSOLE_PORT
