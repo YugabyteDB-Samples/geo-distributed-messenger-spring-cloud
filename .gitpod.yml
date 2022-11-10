@@ -5,7 +5,7 @@ ports:
   - port: 8080 # Application frontend
     onOpen: open-browser
   - port: 7001 # YugabyteDB UI console
-    onOpen: notify
+    onOpen: open-preview
   - port: 9005 # Minio console
     onOpen: notify
   - port: 8761 # Discovery Server UI
