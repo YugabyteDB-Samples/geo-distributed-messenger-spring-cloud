@@ -30,6 +30,10 @@ ports:
     onOpen: ignore
   - port: 9000
     onOpen: ignore
+  - port: 8081
+    onOpen: ignore
+  - port: 5513
+    onOpen: ignore
 
 tasks:
   - name: YugabyteDB Cluster
