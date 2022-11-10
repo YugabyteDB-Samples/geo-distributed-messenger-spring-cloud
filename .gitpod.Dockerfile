@@ -28,10 +28,11 @@ RUN ["/usr/local/yugabyte/bin/post_install.sh"]
 # install Minio
 RUN wget https://dl.min.io/server/minio/release/linux-amd64/minio \
     && chmod +x minio \
-    && sudo mv minio /usr/local/bin \
-    && sudo chown -R $ROLE:$ROLE /usr/local/bin/minio 
+    && sudo mv minio /usr/local/bin
 
-RUN mkdir /usr/local/minio
+RUN sudo mkdir /usr/local/minio \
+    && sudo chown -R $ROLE:$ROLE /usr/local/bin/minio \
+    && sudo chown -R $ROLE:$ROLE /usr/local/minio  
 
 # set the execution path and other env variables
 ENV YB_STORE=/var/ybdp
