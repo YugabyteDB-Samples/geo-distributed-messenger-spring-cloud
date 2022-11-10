@@ -9,8 +9,9 @@ ARG ROLE=gitpod
 USER $ROLE
 
 # switch to Java 17
-RUN sdk install java 17.0.4-zulu \
-    && sdk use java 17.0.4-zulu
+RUN bash -c ". /home/gitpod/.sdkman/bin/sdkman-init.sh && \
+    sdk install java 17.0.4-zulu && \
+    sdk default java 17.0.4-zulu"
 
 # create bin and data path
 RUN sudo mkdir -p $YB_BIN_PATH \
