@@ -75,4 +75,7 @@ tasks:
       gp ports await 8888 && gp preview $(gp url 8888)/messenger/dev
       gp ports await 8761 && gp preview $(gp url 8761)
       gp ports await 5433
+      export DB_DATASOURCE_NAME=com.yugabyte.ysql.YBClusterAwareDataSource
+      export DB_PRIMARY_ENDPOINT=127.0.0.1
+      export DB_ADDITIONAL_ENDPOINTS="127.0.0.2:5433,127.0.0.3:5433"
       mvn spring-boot:run
