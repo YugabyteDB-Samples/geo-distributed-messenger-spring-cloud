@@ -8,6 +8,10 @@ ARG ROLE=gitpod
 
 USER $ROLE
 
+# switch to Java 17
+RUN sdk install java 17.0.4-zulu \
+    && sdk use java 17.0.4-zulu
+
 # create bin and data path
 RUN sudo mkdir -p $YB_BIN_PATH \
     && sudo mkdir -p /var/ybdp

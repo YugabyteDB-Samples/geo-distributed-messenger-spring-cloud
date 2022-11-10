@@ -100,7 +100,7 @@ public class DynamicDataSource extends AbstractRoutingDataSource {
         dataSources.put(CURRENT_DATA_SOURCE_KEY, ds);
         setDefaultTargetDataSource(ds);
 
-        System.out.printf("Initialized new data source for '%s' connection%n", ds.getJdbcUrl());
+        System.out.printf("Initialized new data source for '%s' connection%n", primaryEndpoint);
     }
 
     @Override
