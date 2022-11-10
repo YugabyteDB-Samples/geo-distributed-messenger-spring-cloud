@@ -1,4 +1,4 @@
-FROM gitpod/workspace-java-17
+FROM gitpod/workspace-full
 
 ENV TRIGGER_REBUILD=1
 ARG YB_VERSION=2.15.3.0
@@ -32,7 +32,7 @@ RUN wget https://dl.min.io/server/minio/release/linux-amd64/minio \
 
 RUN sudo mkdir /usr/local/minio \
     && sudo chown -R $ROLE:$ROLE /usr/local/bin/minio \
-    && sudo chown -R $ROLE:$ROLE /usr/local/minio  
+    && sudo chown -R $ROLE:$ROLE /usr/local/minio/*  
 
 # set the execution path and other env variables
 ENV YB_STORE=/var/ybdp
