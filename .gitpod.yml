@@ -36,26 +36,26 @@ tasks:
     command: |
       yugabyted start --base_dir=$YB_STORE/node1 --listen=127.0.0.1 --master_webserver_port=$YB_WEB_PORT --tserver_webserver_port=$TSERVER_WEB_PORT
       yugabyted start --base_dir=$YB_STORE/node2 --listen=127.0.0.2 --join=127.0.0.1  --master_webserver_port=$YB_WEB_PORT --tserver_webserver_port=$TSERVER_WEB_PORT
-      yugabyted start --base_dir=$YB_STORE/node3 --listen=127.0.0.3 --join=127.0.0.3  --master_webserver_port=$YB_WEB_PORT --tserver_webserver_port=$TSERVER_WEB_PORT
+      yugabyted start --base_dir=$YB_STORE/node3 --listen=127.0.0.3 --join=127.0.0.1  --master_webserver_port=$YB_WEB_PORT --tserver_webserver_port=$TSERVER_WEB_PORT
 
   # There is a file-system related issue that prevents starting Minio server within the Gitpod workspace
   # - name: Minio
   #   command: minio server $MINIO_STORE --console-address :$MINIO_CONSOLE_PORT
 
   - name: Config Server
-    init: | 
+    init: |
       cd config-server
       mvn clean package
     command: mvn spring-boot:run
 
   - name: Discovery Server
-    init: | 
+    init: |
       cd discovery-server
       mvn clean package
-    command: mvn spring-boot:run  
-  
+    command: mvn spring-boot:run
+
   - name: Attachments Microservice
-    init: | 
+    init: |
       cd attachments
       mvn clean package
     command: |
@@ -64,7 +64,7 @@ tasks:
       mvn spring-boot:run
 
   - name: Messenger Microservice
-    init: | 
+    init: |
       cd messenger
       mvn clean package
     command: |
