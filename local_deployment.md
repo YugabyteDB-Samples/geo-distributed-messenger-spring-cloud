@@ -53,7 +53,7 @@ docker network create geo-messenger-net
 
 ## Start YugabyteDB
 
-1. Start a YugabyteDB instance:
+1. Start a three-node YugabyteDB cluster:
     ```shell
     rm -R ~/yb_docker_data
     mkdir ~/yb_docker_data
@@ -62,7 +62,20 @@ docker network create geo-messenger-net
     -p 7001:7000 -p 5433:5433 \
     -v ~/yb_docker_data/node1:/home/yugabyte/yb_data --restart unless-stopped \
     yugabytedb/yugabyte:2.15.3.0-b231 \
-    bin/yugabyted start --listen yugabytedb_node1 \
+    bin/yugabyted start --listen=yugabytedb_node1 \
+    --base_dir=/home/yugabyte/yb_data --daemon=false
+
+    docker run -d --name yugabytedb_node2 --net geo-messenger-net \
+    -v ~/yb_docker_data/node2:/home/yugabyte/yb_data --restart unless-stopped \
+    yugabytedb/yugabyte:2.15.3.0-b231 \
+    bin/yugabyted start --listen=yugabytedb_node2 --join=yugabytedb_node1 \
+    --base_dir=/home/yugabyte/yb_data --daemon=false
+
+
+    docker run -d --name yugabytedb_node3 --net geo-messenger-net \
+    -v ~/yb_docker_data/node3:/home/yugabyte/yb_data --restart unless-stopped \
+    yugabytedb/yugabyte:2.15.3.0-b231 \
+    bin/yugabyted start --listen=yugabytedb_node3 --join=yugabytedb_node1 \
     --base_dir=/home/yugabyte/yb_data --daemon=false
     ```
 
@@ -132,6 +145,8 @@ Spring Cloud Discovery Server allows microservices to locate each other easily i
 
 ## Start Attachments Microservice
 
+Wait until the Config and Discover servers get started and then launch the Attachments microservice.
+
 1. Navigate to the microservice directory:
     ```shell
     cd {project-root-dir}/attachments 
@@ -146,6 +161,8 @@ Spring Cloud Discovery Server allows microservices to locate each other easily i
 The service will start listening on `http://localhost:8081/` for incoming requests.
 
 ## Start Messaging Microservice
+
+Wait until the Config and Discover servers get started and then launch the Messaging microservice.
 
 1. Start the messaging microservice:
     ```shell
