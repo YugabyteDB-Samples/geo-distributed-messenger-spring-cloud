@@ -20,7 +20,7 @@ Follow this instruction if you wish to run the entire application with all the c
 
 ## Prerequisite
 
-* Gitpod account:
+* Gitpod account: http://gitpod.io
 
 ## Limitations
 
