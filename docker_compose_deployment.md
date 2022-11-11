@@ -46,8 +46,6 @@ Both microservices load configuration settings from the Spring Cloud Config Serv
 
 Upon startup, both microservices register with the Spring Cloud Discovery Server. The Discovery Server serves as an API/communication layer. When the Messenger service needs to upload a picture, it discovers an instance of the Attachments microservice via the Discovery Server and sends a request to that instance.
 
-For the sake of simplicity, YugabyteDB and MinIO are deployed in Docker and the other components are started on your host machine as standalone Java applications.
-
 ## Start Application
 
 Docker Compose allows to start the entire solution with a single command.
