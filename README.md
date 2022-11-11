@@ -19,6 +19,6 @@ The application can be deployed in several environments.
 | Deployment Type    | Description   |         
 | ------------------ |:--------------|
 | [Your Laptop](local_deployment.md)        | Deploy the entire app with all the components (Spring Cloud Config, Spring Cloud Discovery, YugabyteDB, Minio) on your local machine.|
-| [Docker Compose](local_deployment.md)     | No need to install anything apart from Docker and Docker Compose. Deploy the entire app in Docker with a single Docker Compose command.|
-| [Gitpod](local_deployment.md)             | Run the app in your personal Gitpod environment. Requires to fork this repository. |
+| [Docker Compose](docker_compose_deployment.md)     | No need to install anything apart from Docker and Docker Compose. Deploy the entire app in Docker with a single Docker Compose command.|
+| [Gitpod](gitpod_deployment.md)             | Run the app in your personal Gitpod environment. Requires to fork this repository. |
 | [Geo-Distributed Deployment in Google Cloud](gcloud_deployment.md)       | Deploy a true geo-distributed version of the app across multiple regions in Google Cloud.|
