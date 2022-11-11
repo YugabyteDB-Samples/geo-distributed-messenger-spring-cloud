@@ -54,7 +54,7 @@ Docker Compose allows to start the entire solution with a single command.
     ```shell
     docker-compose run
     ```
-2. Wait while all the components are ready by checking the command line output. The Messenger microservice finishes the boostraping the last by preloading the mock data:
+2. Wait while all the components are ready by checking the command line output. The Messenger microservice finishes the bootstrapping the last by preloading the mock data:
     ```java
     messenger_1         | 2022-11-11 14:52:29.839  INFO 185 --- [  restartedMain] c.y.a.m.data.generator.DataGenerator     : Generating Channels
     messenger_1         | 2022-11-11 14:52:30.893  INFO 185 --- [  restartedMain] c.y.a.m.data.generator.DataGenerator     : Generating Users

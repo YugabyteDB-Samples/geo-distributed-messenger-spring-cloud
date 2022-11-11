@@ -1,8 +1,8 @@
-# Application Deployment in Google Cloud
+# Geo-Distributed Deployment in Google Cloud
 
-The geo-messenger is designed to function across geogrpahies by definition. The following instruction shows how to deploy multiple application instances across several distant regions in Google Cloud. The regions are as follows - `us-west2`, `us-central1`, `us-east4`, `europe-west3` and `asia-east1`. You're free to follow the instruction precisely by deploy the application instances in all of those locations or skip as many location as you like.
+The geo-messenger is designed to function across geogrpahies by definition. The following instruction shows how to deploy multiple application instances across several distant regions in Google Cloud. The regions are as follows - `us-west2`, `us-central1`, `us-east4`, `europe-west3` and `asia-east1`. You're free to follow the instruction precisely by deploy the application instances in all of those locations or skip some of them.
 
-[YugabyteDB Managed](http://cloud.yugabyte.com) or self-managed YugabyteDB should be deployed in the regions similar to those selected for the application deployment. 
+[YugabyteDB Managed](http://cloud.yugabyte.com) or self-managed YugabyteDB instance should be deployed in the regions similar to those selected for the application deployment. 
 
 <!-- vscode-markdown-toc -->
 
