@@ -291,6 +291,7 @@ where
     ```
     
 5. Try out the app by sending a few messages and uploading a picture:
+    ![Messenger](https://user-images.githubusercontent.com/1537233/201394810-b3d123db-4529-4a82-8d96-d367bb4ead1a.png)
 
 ## Configure Global External Load Balancer
 
