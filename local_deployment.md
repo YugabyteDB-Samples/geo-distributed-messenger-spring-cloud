@@ -7,7 +7,7 @@ Follow this instruction if you wish to run the entire application with all the c
 - [Local Application Deployment](#local-application-deployment)
   - [Prerequisite](#prerequisite)
   - [Architecture](#architecture)
-  - [Create Custom Network](#create-custom-network)
+  - [Create Custom Docker Network](#create-custom-docker-network)
   - [Start YugabyteDB](#start-yugabyteDB)
   - [Start Minio](#start-minio)
   - [Start Config Server](#start-config-server)
