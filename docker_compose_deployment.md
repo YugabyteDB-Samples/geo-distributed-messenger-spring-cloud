@@ -6,14 +6,10 @@ Follow this instruction if you wish to run the entire application with all the c
 
 - [Docker Compose Deployment](#docker-compose-deployment)
   - [Prerequisite](#prerequisite)
+  - [Limitations](#limitations)
   - [Architecture](#architecture)
-  - [Create Custom Docker Network](#create-custom-docker-network)
-  - [Start YugabyteDB](#start-yugabyteDB)
-  - [Start Minio](#start-minio)
-  - [Start Config Server](#start-config-server)
-  - [Start Discovery Server](#start-discovery-server)
-  - [Start Attachments Microservice](#start-attachments-microservice)
-  - [Start Messenger Microservice](#start-messenger-microservice)
+  - [Start Application](#start-application)
+  - [Play With Application](#play-with-application)
   - [Clean Resources](#clean-resources)
 
 <!-- vscode-markdown-toc-config
@@ -27,9 +23,18 @@ Follow this instruction if you wish to run the entire application with all the c
 * Docker 20.10.12+
 * Docker Compose 1.29.2+
 
+## Limitations
+
+Presently, the current deployment option doesn't fully support the integration with MinIO. You can load pictures via the Attachments microservice to the store but those won't be displayed in a discussion channel.
+
+Try out alternate deployment options that fully support attachments:
+* [Local deployment option](local_deployment.md)
+* [Cloud-native geo-distributed deployment option](gcloud_deployment.md)
+
+
 ## Architecture
 
-![local_deployment_architecture](https://user-images.githubusercontent.com/1537233/201354805-e0c67da5-d5d7-4786-bb2c-70f237ec833a.png)
+![docker_compose_deployment_architecture](https://user-images.githubusercontent.com/1537233/201368434-bf5f2ce9-0fe3-49b1-9715-bf6e13dfe44a.png)
 
 The application logic is shared between two microservices.
 
@@ -51,7 +56,7 @@ Docker Compose allows to start the entire solution with a single command.
     ```shell
     docker-compose run
     ```
-2. Wait while all the components are ready by checking the command line output. The Messenger microservice will finish the boostraping the by preloading the mock data:
+2. Wait while all the components are ready by checking the command line output. The Messenger microservice finishes the boostraping the last by preloading the mock data:
     ```java
     messenger_1         | 2022-11-11 14:52:29.839  INFO 185 --- [  restartedMain] c.y.a.m.data.generator.DataGenerator     : Generating Channels
     messenger_1         | 2022-11-11 14:52:30.893  INFO 185 --- [  restartedMain] c.y.a.m.data.generator.DataGenerator     : Generating Users
@@ -61,152 +66,55 @@ Docker Compose allows to start the entire solution with a single command.
     messenger_1         | Preloaded all Profiles to local cache
     ```
 
-2. Confirm the instance is running:
+3. Confirm both microservices are registered with the Discovery Server:
+    http://127.0.0.1:8761
+    ![Discovery Server](https://user-images.githubusercontent.com/1537233/201366203-2579a073-4f1f-403e-90f1-93a3287643b9.png)
+
+4. Check that a three-node YugabyteDB cluster is started:
     http://127.0.0.1:7001
+    ![YugabyteDB](https://user-images.githubusercontent.com/1537233/201366549-19bbbe35-d22c-4fc9-a3c9-5c45412da4db.png)
 
-    ![YugabyteDB Cluster](https://user-images.githubusercontent.com/1537233/201357005-7ddf853f-c501-422f-a675-61527e6ec214.png)
+## Play With Application
 
+Go ahead and try out the application.
 
-## Start MinIO
-
-[Minio](https://min.io) is used in local deployments as an object store for pictures that are loaded via the Attachments microservice. 
-
-1. Start the Minio service in:
-    ```shell
-    rm -R ~/minio/data
-    mkdir -p ~/minio/data
-
-    docker run -d \
-    --net geo-messenger-net \
-    -p 9000:9000 \
-    -p 9001:9001 \
-    --name minio1 \
-    -v ~/minio/data:/data \
-    -e "MINIO_ROOT_USER=minio_user" \
-    -e "MINIO_ROOT_PASSWORD=password" \
-    quay.io/minio/minio:RELEASE.2022-08-26T19-53-15Z server /data --console-address ":9001"
-    ```
-
-2. Open the Minio console and log in using the following credentials - `minio_user` / `password`:
-    http://127.0.0.1:9001
-
-    ![MinIO Console](https://user-images.githubusercontent.com/1537233/201357361-ec2c6535-865f-471c-968d-b339fd6bc0b4.png)
-
-
-## Start Config Server
-
-Spring Cloud Config Server stores configurations in the following public repository:
-https://github.com/YugabyteDB-Samples/geo-distributed-messenger-config-repo
-
-1. Start the config server:
-    ```shell
-    cd {project-root-dir}/config-server
-
-    mvn spring-boot:run
-    ```
-    Alternatively, you can start the app from your IDE of choice. Just launch the `ConfigServerApplication.java` file.
-
-2. Confirm the server is running by requesting a development configuration for the Messenger microservice:
-    http://localhost:8888/messenger/dev
-
-The Config Server clones the configuration repository into the `$HOME/messenger-config` directory. You can override this settings in the server's `application.properties` file.
-
-Presently, the repository includes the following configurations:
-* `messenger-dev.properties` - development configuration of the Messenger microservice for local testing (used by default)
-* `messenger-prod.properties` - prod configuration of the Messenger microservice, requires to provide several settings via environment variables. Activated with the `-Pprod` maven profile.
-* `attachments-dev.properties` - development configuration of the Attachments microservice for local testing (used by default)
-* `attachments-prod.properties` - prod configuration of the Attachements microservice, requires to provide several settings via environment variables. Activated by the `-Pprod` maven profile.
-
-## Start Discovery Server
-
-Spring Cloud Discovery Server allows microservices to locate each other easily in a distributed environment. Both Messenger and Attachments microservices register with the Discovery Server. The Attachments service exposes a REST endpoint used by the Messaging one for pictures uploading.
-
-1. Start the discovery server:
-    ```shell
-    cd {project-root-dir}/discovery-server
-
-    mvn spring-boot:run
-    ```
-    Alternatively, you can start the app from your IDE of choice. Just launch the `DiscoveryServerApplication.java` file.
-
-2. Confirm the server is running by opening the following address:
-    http://localhost:8761
-    ![Discovery Server](https://user-images.githubusercontent.com/1537233/201358246-b5c2710b-b75b-418c-ac95-efbf5122a41a.png)
-
-## Start Attachments Microservice
-
-Once the Config and Discover Servers are started, launch the Attachments microservice.
-
-1. Navigate to the microservice directory:
-    ```shell
-    cd {project-root-dir}/attachments 
-    ```
-
-2. Start the service:
-    ```shell
-    mvn spring-boot:run
-    ```
-    Alternatively, you can start the app from your IDE. Just run the `AttachmentsApplication.java` class.
-
-The service will start listening on `http://localhost:8081/` for incoming requests.
-
-## Start Messenger Microservice
-
-Once the Config and Discover Servers are started, also start the Messenger microservice.
-
-1. Start the microservice:
-    ```shell
-    cd {project-root-dir}/messenger
-    mvn spring-boot:run
-    ```
-    Alternatively, you can start the app from your IDE of choice. Just boot the `Application.java` file.
-
-2. Wait while the database is preloaded with the sample data. Check the log for the following output:
-    ```java
-    INFO 90053 --- [  restartedMain] c.y.a.m.data.generator.DataGenerator     : Generating Messages
-    INFO 90053 --- [  restartedMain] c.y.a.m.data.generator.DataGenerator     : Finished data generation
-    Preloaded all Profiles to local cache
-    ```
-
-3. Open http://localhost:8080 in your browser (if it's not opened automatically) and log in using the following credentials:
+1. Open http://localhost:8080 in your browser and log in using the following credentials:
     ```shell
     username: test@gmail.com
     pwd: password
     ```
 
-4. Send a few messages and try to upload a picture:
-    ![Messenger](https://user-images.githubusercontent.com/1537233/201361113-b21d2095-d7c9-4c20-b4db-d595aa4eb79c.png)
+4. Send a few messages:
+    ![Screen Shot 2022-11-11 at 10 12 31 AM](https://user-images.githubusercontent.com/1537233/201368976-74513caa-4834-411d-a020-f5ccc8256989.png)
 
 
 Note, during the first launch, it might take several minutes for Vaadin to compile the frontend. During this time the http://localhost:8080, should show the following message:
 ![Vaadin compiling](https://user-images.githubusercontent.com/1537233/201361833-6c303714-d334-40c7-a6ad-578f4b989d07.png)
 
-Enjoy and make sure to check the source code! 
+Vaadin finishes the compilation by printing out the following messages to the log:
+```java
+messenger_1         | 2022-11-11 14:55:11.760  INFO 185 --- [onPool-worker-2] c.v.f.s.frontend.TaskUpdatePackages      : Frontend dependencies resolved successfully.
+messenger_1         | 2022-11-11 14:55:12.568  INFO 185 --- [onPool-worker-2] c.v.f.s.frontend.TaskCopyFrontendFiles   : Copying frontend resources from jar files ...
+messenger_1         | 2022-11-11 14:55:12.674  INFO 185 --- [onPool-worker-2] c.v.f.s.frontend.TaskCopyFrontendFiles   : Visited 20 resources. Took 106 ms.
+messenger_1         | 2022-11-11 14:55:12.710  INFO 185 --- [onPool-worker-2] c.v.b.devserver.AbstractDevServerRunner  : Starting Webpack
+messenger_1         | 
+messenger_1         | ------------------ Starting Frontend compilation. ------------------
+messenger_1         | 2022-11-11 14:55:13.065  INFO 185 --- [onPool-worker-2] c.v.b.devserver.AbstractDevServerRunner  : Running Webpack to compile frontend resources. This may take a moment, please stand by...
+messenger_1         | 2022-11-11 14:55:14.726  INFO 185 --- [v-server-output] c.v.b.devserver.DevServerOutputTracker   : [webpack-dev-server] Project is running at:
+messenger_1         | 2022-11-11 14:55:14.726  INFO 185 --- [v-server-output] c.v.b.devserver.DevServerOutputTracker   : [webpack-dev-server] Loopback: http://localhost:41943/
+messenger_1         | 2022-11-11 14:55:14.727  INFO 185 --- [v-server-output] c.v.b.devserver.DevServerOutputTracker   : [webpack-dev-server] Content not from webpack is served from '/opt/messenger/messenger/target/classes/META-INF/VAADIN/webapp, /opt/messenger/messenger/src/main/webapp' directory
+messenger_1         | 2022-11-11 14:55:18.296  INFO 185 --- [v-server-output] c.v.b.devserver.DevServerOutputTracker   : [build-status] : Compiled.
+messenger_1         | 
+messenger_1         | ----------------- Frontend compiled successfully. -----------------
+messenger_1         | 
+```
 
-Next, try out the [geo-distributed deployment option](gcloud_deployment.md) of the application that spans accross countries and continents in Google Cloud.
+What's next? Try out the [geo-distributed deployment option](gcloud_deployment.md) of the application that spans accross countries and continents in Google Cloud.
 
 ## Clean Resources
 
-If you're done working with the app, then use these command to remove Docker containers and other resources associated with them:
+If you're done working with the app, then use this command to remove Docker containers and other resources associated with them:
 
 ```shell
-docker kill minio1
-docker container rm minio1
-
-docker kill yugabytedb_node1
-docker container rm yugabytedb_node1
-
-docker kill yugabytedb_node2
-docker container rm yugabytedb_node2
-
-docker kill yugabytedb_node3
-docker container rm yugabytedb_node3
-
-docker network rm geo-messenger-net
-
-rm -R ~/yb_docker_data
-rm -R ~/minio/data
-
-#remove all unused volumes
-docker volume prune 
+docker-compose down
 ```
