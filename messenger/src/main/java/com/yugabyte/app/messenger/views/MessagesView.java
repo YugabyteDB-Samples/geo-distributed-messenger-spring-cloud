@@ -176,9 +176,10 @@ public class MessagesView extends Section {
 
             Span nameSpan = new Span(userName);
 
-            Span timeSpan = new Span(" " + dateTimeFormatter.format(message.getSentAt().toLocalDateTime()));
+            Span timeSpan = new Span(dateTimeFormatter.format(message.getSentAt().toLocalDateTime()));
             timeSpan.getStyle().set("color", "var(--lumo-secondary-text-color)")
-                    .set("font-size", "var(--lumo-font-size-s)");
+                    .set("font-size", "var(--lumo-font-size-s)")
+                    .set("padding-left", "10px");
 
             HorizontalLayout messageTitle = new HorizontalLayout();
             messageTitle.add(nameSpan, timeSpan);
