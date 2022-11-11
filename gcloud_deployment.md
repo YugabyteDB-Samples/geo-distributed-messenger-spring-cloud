@@ -31,7 +31,15 @@ The geo-messenger is designed to function across geogrpahies by definition. The 
 
 ## Architecture
 
-TBD
+![google_cloud_deployment_architecture](https://user-images.githubusercontent.com/1537233/201388420-fcf4b8f9-5cbb-489c-91bd-ab43db7abc29.png)
+
+The application and other components it depends on can function across multiple cloud regions. Check the [following article](https://dzone.com/articles/geo-what-a-quick-introduction-to-geo-distributed-a) for details on why this matters.
+
+As the diagram above shows, you can deploy multiple instances of the Messaging, Attachments, Discovery, Config services in several cloud locations - `Region A -> Zone A`, `Region A -> Zone B` and `Region B -> Zone A`. Refer to the [architecture overview of the local deployment option](local_deployment.md) for details on how those services communicate.
+
+YugabyteDB is deployed in a multi-region mode in the regions of choice. Google Cloud Storage runs across multiple locations as well and used to store pictures that the users share via the messenger.
+
+The users connect to the Glogbal External Load Balancer that forwards their requests to an application instance that is closest to the user and healthy.
 
 ## Create Google Project
 
