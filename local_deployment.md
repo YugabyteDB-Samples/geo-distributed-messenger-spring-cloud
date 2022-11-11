@@ -13,7 +13,7 @@ Follow this instruction if you wish to run the entire application with all the c
   - [Start Config Server](#start-config-server)
   - [Start Discovery Server](#start-discovery-server)
   - [Start Attachments Microservice](#start-attachments-microservice)
-  - [Start Messenging Microservice](#start-messenging-microservice)
+  - [Start Messenger Microservice](#start-messenging-microservice)
   - [Clean Resources](#clean-resources)
 
 <!-- vscode-markdown-toc-config
@@ -88,7 +88,7 @@ docker network create geo-messenger-net
     ![YugabyteDB Cluster](https://user-images.githubusercontent.com/1537233/201357005-7ddf853f-c501-422f-a675-61527e6ec214.png)
 
 
-## Start Minio
+## Start MinIO
 
 [Minio](https://min.io) is used in local deployments as an object store for pictures that are loaded via the Attachments microservice. 
 
@@ -116,7 +116,7 @@ docker network create geo-messenger-net
 
 ## Start Config Server
 
-Spring Cloud Config Server pulls configuration from the following public repository:
+Spring Cloud Config Server stores configurations in the following public repository:
 https://github.com/YugabyteDB-Samples/geo-distributed-messenger-config-repo
 
 1. Start the config server:
@@ -127,20 +127,20 @@ https://github.com/YugabyteDB-Samples/geo-distributed-messenger-config-repo
     ```
     Alternatively, you can start the app from your IDE of choice. Just launch the `ConfigServerApplication.java` file.
 
-2. Confirm the server is running by requesting a development configuration of the Messaging microservice:
+2. Confirm the server is running by requesting a development configuration for the Messenger microservice:
     http://localhost:8888/messenger/dev
 
-The config server clones the repo into the `$HOME/messenger-config` directory. You can override this settings in the server's `application.properties` file.
+The Config Server clones the configuration repository into the `$HOME/messenger-config` directory. You can override this settings in the server's `application.properties` file.
 
-The repository includes settings for all presently implemented microservices:
-* `messenger-dev.properties` - development configuration of the Messaging microservice for local testing (used by default)
-* `messenger-prod.properties` - prod configuration of the Messaging microservice, requires to provide several settings via environment variables. Activated by the `-Pprod` maven profile.
+Presently, the repository includes the following configurations:
+* `messenger-dev.properties` - development configuration of the Messenger microservice for local testing (used by default)
+* `messenger-prod.properties` - prod configuration of the Messenger microservice, requires to provide several settings via environment variables. Activated with the `-Pprod` maven profile.
 * `attachments-dev.properties` - development configuration of the Attachments microservice for local testing (used by default)
 * `attachments-prod.properties` - prod configuration of the Attachements microservice, requires to provide several settings via environment variables. Activated by the `-Pprod` maven profile.
 
 ## Start Discovery Server
 
-Spring Cloud Discovery Server allows microservices to locate each other easily in a distributed environment. Both Messaging and Attachments microservices register in Discovery Server. The Attachments service exposes a REST endpoint used by the Messaging one for pictures uploading.
+Spring Cloud Discovery Server allows microservices to locate each other easily in a distributed environment. Both Messenger and Attachments microservices register with the Discovery Server. The Attachments service exposes a REST endpoint used by the Messaging one for pictures uploading.
 
 1. Start the discovery server:
     ```shell
@@ -152,10 +152,11 @@ Spring Cloud Discovery Server allows microservices to locate each other easily i
 
 2. Confirm the server is running by opening the following address:
     http://localhost:8761
+    ![Discovery Server](https://user-images.githubusercontent.com/1537233/201358246-b5c2710b-b75b-418c-ac95-efbf5122a41a.png)
 
 ## Start Attachments Microservice
 
-Wait until the Config and Discover servers get started and then launch the Attachments microservice.
+Once the Config and Discover Servers are started, launch the Attachments microservice.
 
 1. Navigate to the microservice directory:
     ```shell
@@ -170,28 +171,32 @@ Wait until the Config and Discover servers get started and then launch the Attac
 
 The service will start listening on `http://localhost:8081/` for incoming requests.
 
-## Start Messaging Microservice
+## Start Messenger Microservice
 
-Wait until the Config and Discover servers get started and then launch the Messaging microservice.
+Once the Config and Discover Servers are started, also start the Messenger microservice.
 
-1. Start the messaging microservice:
+1. Start the microservice:
     ```shell
     cd {project-root-dir}/messenger
-    ```
-
-3. Start the app from command line:
-    ```shell
     mvn spring-boot:run
     ```
     Alternatively, you can start the app from your IDE of choice. Just boot the `Application.java` file.
 
-4. Open http://localhost:8080 in your browser (if it's not opened automatically)
+2. Wait while the database is preloaded with the sample data. Check the log for the following output:
+    ```java
+    INFO 90053 --- [  restartedMain] c.y.a.m.data.generator.DataGenerator     : Generating Messages
+    INFO 90053 --- [  restartedMain] c.y.a.m.data.generator.DataGenerator     : Finished data generation
+    Preloaded all Profiles to local cache
+    ```
 
-5. Log in under a test user:
+3. Open http://localhost:8080 in your browser (if it's not opened automatically) and log in using the following credentials:
     ```shell
     username: test@gmail.com
     pwd: password
     ```
+
+4. Send a few messages and try to upload a picture:
+  
 
 Enjoy and have fun! 
 
