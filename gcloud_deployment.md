@@ -477,13 +477,46 @@ Once the cloud load balancer is ready, use its IP address to access the applicat
 2. Send a few messages in the app and upload a picture:
     ![Messages](https://user-images.githubusercontent.com/1537233/201398523-7dae24bc-ab42-48f0-b72f-668070e23533.png)
 
-The load balancer will forward your request to the nearest application one. To determine your current instance:
+The load balancer will forward your request to the nearest application instance. To determine your current instance:
 
 1. Go to the `Load Balancing`page of `https://console.cloud.google.com` and open the `Monitoring` tab.
 
 2. Explore the diagram like the one below. In my case, the nearest location was in the US East region `ig-us-east`. Yours might be different depending on where you are in the world:
     ![Screen Shot 2022-11-11 at 12 44 28 PM](https://user-images.githubusercontent.com/1537233/201398951-fa07b0fc-ec5a-4e89-8034-8c8c6a959152.png)
   
+## Test Fault-Tolerance
+
+If the application instance, that is closest to you, becomes unhealthy the load balancer will automatically forward requests to another instance.
+
+You can simulate an outage by stopping an instance of the Messenger microservice in the location that serves your request: 
+
+1. Get a list of all VMs:
+    ```shell
+    gcloud compute instances list
+    ```
+2. Connect to the VM where the load balancer forwards your requests (in my case, that's an instace from the `ig-us-east` group):
+    ```shell
+    gcloud compute ssh {INSTANCE_NAME}
+    ```
+3. Switch to `root`:
+    ```shell
+    sudo su
+    ```
+4. Find the PID of the Messenger microservice (it listens on port `80`):
+    ```shell
+    fuser 80/tcp
+    ```
+5. Stop the instance:
+    ```shell
+    kill -9 {PID}
+    ```
+
+The load balancer runs a healthcheck every 5s (configured earlier in this instruction) and will detect the outage shortly:
+
+1. Open the `http://{LOAD_BALANCER_PUBLIC_IP}` in your browser again
+
+2. The load balancer will redirect your requests to a different application instance. In my case, that was an instance from the `ig-europe-west` region:
+    ![Another region](https://user-images.githubusercontent.com/1537233/201405913-b716f35b-1966-4236-bb54-0607a0d4b78a.png)
 
 
 
