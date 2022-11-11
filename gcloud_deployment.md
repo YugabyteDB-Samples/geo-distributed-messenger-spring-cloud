@@ -137,7 +137,7 @@ The users connect to the Glogbal External Load Balancer that forwards their requ
 
 ## Enable Google Cloud Storage
 
-The Attachments microservice uploads pictures to the [Google Cloud Storage](https://cloud.google.com/storage). Make sure the service is enabled at the project level.
+The Attachments microservice uploads pictures to the [Google Cloud Storage](https://cloud.google.com/storage). Enable the service for this Google project.
 
 ## Create Instance Templates
 
@@ -166,7 +166,12 @@ where
     * `classpath:messenger_schema.sql` - a basic database schema with NO tablespaces and partitions
     * `classpath:messenger_schema_partitioned.sql` - a schema with tablespaces belonging to specific cloud regions and geo-partitions.
 
-1. Create a template for the US West, Central and East regions:
+1. Navigate to the folder with the script:
+    ```shell
+    cd {project_root_dir}/gcloud
+    ```
+
+2. Create a template for the US West, Central and East regions:
     ```shell
     ./create_instance_template.sh \
         -n template-us-west \
@@ -204,7 +209,7 @@ where
         -m standard \
         -f "classpath:messenger_schema.sql"
     ```
-2. Create a template for Europe:
+3. Create a template for Europe:
     ```shell
     ./create_instance_template.sh \
         -n template-europe-west \
@@ -218,7 +223,7 @@ where
         -m standard \
         -f "classpath:messenger_schema.sql"
     ```  
-3. Create a template for Asia:
+4. Create a template for Asia:
     ```shell
     ./create_instance_template.sh \
         -n template-asia-east \
@@ -232,6 +237,7 @@ where
         -m standard \
         -f "classpath:messenger_schema.sql"
     ```  
+
 ## Start Application Instances
 
 1. Start an application instance in every region:
@@ -252,30 +258,43 @@ where
         --template=template-asia-east --size=1 --zone=asia-east1-b
     ```
 
-2. (YugabyteDB Managed specific) Add VMs external IP to the [IP Allow list](https://docs.yugabyte.com/preview/yugabyte-cloud/cloud-secure-clusters/add-connections/#assign-an-ip-allow-list-to-a-cluster).
+2. (YugabyteDB Managed specific) Add VMs external IPs to the [IP Allow list](https://docs.yugabyte.com/preview/yugabyte-cloud/cloud-secure-clusters/add-connections/#assign-an-ip-allow-list-to-a-cluster).
 
-3. Open Google Cloud Logging and wait while the VM finishes executing the `startup_script.sh` that sets up the environment and start an application instance. It can take between 5-10 minutes.
+3. Open Google Cloud Logging and wait while the VM finishes executing the `startup_script.sh` that sets up the environment and starts the application. It can take between 5-10 minutes.
 
     Alternatively, check the status from the terminal:
     ```shell
-    #find an instance name
-    gcloud compute instances list --project=geo-distributed-messenger
+    # List all the instances
+    gcloud compute instances list
 
-    #connect to the instance
-    gcloud compute ssh {INSTANCE_NAME} --project=geo-distributed-messenger
+    # Pick any instance
+    gcloud compute ssh {INSTANCE_NAME}
 
     sudo journalctl -u google-startup-scripts.service -f
     ```
 
-4. Open the app by connecting to `http://{INSTANCE_EXTERNAL_IP}`. Use `test@gmail.com` and `password` as testing credentials.
+    The messenger Microservice starts the last and you should see the following ouput in the log that means the app is ready for usage:
+    ```java
+    google_metadata_script_runner[2767]: startup-script: Preloaded all Profiles to local cache
+    ```
+
+    Just in case, disregard the following warnings, they are harmless:
+    ```java
+    google_metadata_script_runner[2767]: startup-script: 2022-11-11 17:10:56.970  WARN 4475 --- [nnection thread] com.yugabyte.Driver : yb_servers() refresh failed in first attempt itself. Falling back to default behaviour
+    google_metadata_script_runner[2767]: startup-script: 2022-11-11 17:10:56.970  WARN 4475 --- [nnection thread] com.yugabyte.Driver                      : Failed to apply load balance. Trying normal connection
+    ``` 
+
+4. Open the app by connecting to `http://{INSTANCE_EXTERNAL_IP}` and log in with `test@gmail.com`/`password`:
     Note, you can find the external address by running this command:
     ```shell
     gcloud compute instances list
     ```
+    
+5. Try out the app by sending a few messages and uploading a picture:
 
 ## Configure Global External Load Balancer
 
-Now that the instances are up and running, configure a global load balancer that will forward user requests to the nearest instance.
+Now that the instances are up and running, configure a global load balancer that will forward user requests to the application instance.
 
 ### Add Named Ports to Instance Groups
 
