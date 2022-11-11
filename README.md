@@ -2,7 +2,7 @@
 
 This application is a Slack-like messenger that is designed to function across geographies. 
 
-Presently the application supports basic messaging features as well as an ability to load pictures in discussion channels. 
+Presently the application supports basic messaging features as well as an ability to share pictures in discussion channels. 
 
 ![image9](https://user-images.githubusercontent.com/1537233/197895210-5052d681-cd8e-45b2-a621-429b05bce682.png)
 
