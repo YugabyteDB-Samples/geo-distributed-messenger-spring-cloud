@@ -12,13 +12,13 @@ The software stack is built on Spring Boot, Spring Cloud Config Server, Spring C
 
 ## Deployment Options
 
-![architecture-geo-distributed](https://user-images.githubusercontent.com/1537233/197904658-1ce99812-bcfd-4de9-b782-41bc677545ba.png)
+![high_level_architecture](https://user-images.githubusercontent.com/1537233/201415768-1c84858d-25f7-41ca-916f-5e660a0f1d4d.png)
 
 The application can be deployed in several environments.
 
 | Deployment Type    | Description   |         
 | ------------------ |:--------------|
-| [Your Laptop](local_deployment.md)        | Deploy the entire app with all the components (Spring Cloud Config, Spring Cloud Discovery, YugabyteDB, Minio) on your local machine.|
+| [Your Laptop](local_deployment.md)        | Deploy the entire app with all the components (Spring Cloud Config, Spring Cloud Discovery, YugabyteDB, MinIO) on your local machine.|
 | [Docker Compose](docker_compose_deployment.md)     | No need to install anything apart from Docker and Docker Compose. Deploy the entire app in Docker with a single Docker Compose command.|
 | [Gitpod](gitpod_deployment.md)             | Run the app in your personal Gitpod environment. Requires to fork this repository. |
 | [Geo-Distributed Deployment in Google Cloud](gcloud_deployment.md)       | Deploy a true geo-distributed version of the app across multiple regions in Google Cloud.|
