@@ -6,7 +6,7 @@ The geo-messenger is designed to function across geogrpahies by definition. The 
 
 <!-- vscode-markdown-toc -->
 
-- [Application Deployment in Google Cloud](#application-deployment-in-google-cloud)
+- [Geo-Distributed Deployment in Google Cloud](#geo-distributed-deployment-in-google-cloud)
   - [Prerequisite](#prerequisite)
   - [Architecture](#architecture)
   - [Create Google Project](#create-google-project)
@@ -16,7 +16,8 @@ The geo-messenger is designed to function across geogrpahies by definition. The 
   - [Start Application Instances](#start-application-instances)
   - [Configure Global External Load Balancer](#configure-global-external-load-balancer)
   - [Test Load Balancer](#test-load-balancer)
-  - [Test Application](#test-application)
+  - [Play With Application](#play-with-application)
+  - [Test Fault Tolerance](#test-fault-tolerance)
   
 <!-- vscode-markdown-toc-config
     numbering=false
@@ -484,7 +485,7 @@ The load balancer will forward your request to the nearest application instance.
 2. Explore the diagram like the one below. In my case, the nearest location was in the US East region `ig-us-east`. Yours might be different depending on where you are in the world:
     ![Screen Shot 2022-11-11 at 12 44 28 PM](https://user-images.githubusercontent.com/1537233/201398951-fa07b0fc-ec5a-4e89-8034-8c8c6a959152.png)
   
-## Test Fault-Tolerance
+## Test Fault Tolerance
 
 If the application instance, that is closest to you, becomes unhealthy the load balancer will automatically forward requests to another instance.
 
