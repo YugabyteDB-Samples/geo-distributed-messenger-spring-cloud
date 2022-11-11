@@ -13,7 +13,7 @@ Follow this instruction if you wish to run the entire application with all the c
   - [Start Config Server](#start-config-server)
   - [Start Discovery Server](#start-discovery-server)
   - [Start Attachments Microservice](#start-attachments-microservice)
-  - [Start Messenger Microservice](#start-messenging-microservice)
+  - [Start Messenger Microservice](#start-messenger-microservice)
   - [Clean Resources](#clean-resources)
 
 <!-- vscode-markdown-toc-config
