@@ -1,34 +1,24 @@
-# Geo-Distributed Messenger With YugabyteDB and Kong Gateway
+# Geo-Distributed Messenger With Spring Cloud, YugabyteDB and Google Cloud
 
-This a sample geo-distributed messenger that runs on YugabyteDB database, Kong Gateway, Spring Boot, Vaadin, MinIO and several cloud services.   
+This application is a Slack-like messenger that is designed to function across geographies. 
+
+Presently the application supports basic messaging features as well as an ability to load pictures in discussion channels. 
+
+![image9](https://user-images.githubusercontent.com/1537233/197895210-5052d681-cd8e-45b2-a621-429b05bce682.png)
 
 The messenger can be deployed as a single instance on your local laptop or function across the world in the public Google Cloud infrastructure.
 
-![architecture-geo-distributed](https://user-images.githubusercontent.com/1537233/197904658-1ce99812-bcfd-4de9-b782-41bc677545ba.png)
-
-Use this project as a blueprint for designing and building geo-distributed apps with YugabyteDB from scratch.
-
-## Development Journal
-
-The project's development journey was thoroughly documented on DZone so that the reader can understand design choices and tradeoffs. Follow the journey from start to finish by surfing through the following articles:
-* [Geo What? A Quick Introduction to Geo-Distributed Apps](https://dzone.com/articles/geo-what-a-quick-introduction-to-geo-distributed-a)
-* [What Makes the Architecture of Geo-Distributed Apps Different?](https://dzone.com/articles/what-makes-the-architecture-of-geo-distributed-app)
-* [How to Build a Multi-Zone Java App in Days With Vaadin, YugabyteDB, and Heroku](https://dzone.com/articles/how-to-build-a-multi-zone-java-app-in-days-with-va)
-* [How To Connect a Heroku Java App to a Cloud-Native Database](https://dzone.com/articles/how-to-connect-a-heroku-app-to-a-yugabytedb-manage)
-* [Automating Java Application Deployment Across Multiple Cloud Regions](https://dzone.com/articles/automating-java-application-deployment-across-mult)
-* [Geo-distributed API Layer With Kong Gateway](https://dzone.com/articles/geo-distributed-api-layer-with-kong-gateway)
-* [Using Global Cloud Load Balancer to Route User Requests to App Instances](https://dzone.com/articles/using-global-cloud-load-balancer-to-route-user-req)
-* [Geo-Distributed Microservices and Their Database: Fighting the High Latency](https://dzone.com/articles/geo-distributed-microservices-and-their-database-f)
-
-And feel free to reach out to the [main developer and author of the project](https://twitter.com/denismagda) for feedback or questions.
+The software stack is built on Spring Boot, Spring Cloud Config Server, Spring Cloud Discover Server, Vaadin and YugabyteDB database. Google Cloud Storage is used for the Google Cloud deployment and MinIO is used in other deployment options. 
 
 ## Deployment Options
 
-![image9](https://user-images.githubusercontent.com/1537233/197895210-5052d681-cd8e-45b2-a621-429b05bce682.png)
+![architecture-geo-distributed](https://user-images.githubusercontent.com/1537233/197904658-1ce99812-bcfd-4de9-b782-41bc677545ba.png)
 
 The application can be deployed in several environments.
 
 | Deployment Type    | Description   |         
 | ------------------ |:--------------|
-| [Your Laptop or On-Prem Environment](local_deployment.md)        | Deploy the entire app with all the components (Kong, YugabyteDB, Minio) on your local machine.|
-| [Geo-Distributed version in Google Cloud](gcloud_deployment.md)       | Deploy the cloud-native geo-distributed version of the app accross distant geographies in Google Cloud.|
+| [Your Laptop](local_deployment.md)        | Deploy the entire app with all the components (Spring Cloud Config, Spring Cloud Discovery, YugabyteDB, Minio) on your local machine.|
+| [Docker Compose](local_deployment.md)     | No need to install anything apart from Docker and Docker Compose. Deploy the entire app in Docker with a single Docker Compose command.|
+| [Gitpod](local_deployment.md)             | Run the app in your personal Gitpod environment. Requires to fork this repository. |
+| [Geo-Distributed Deployment in Google Cloud](gcloud_deployment.md)       | Deploy a true geo-distributed version of the app across multiple regions in Google Cloud.|
