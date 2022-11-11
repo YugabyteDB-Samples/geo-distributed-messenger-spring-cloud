@@ -1,10 +1,10 @@
-# Local Application Deployment
+# Docker Compose Deployment
 
-Follow this instruction if you wish to run the entire application with all the components on your local laptop or on-premise environment.
+Follow this instruction if you wish to run the entire application with all the components in Docker using Docker Compose.
 
 <!-- vscode-markdown-toc -->
 
-- [Local Application Deployment](#local-application-deployment)
+- [Docker Compose Deployment](#docker-compose-deployment)
   - [Prerequisite](#prerequisite)
   - [Architecture](#architecture)
   - [Create Custom Docker Network](#create-custom-docker-network)
@@ -24,9 +24,8 @@ Follow this instruction if you wish to run the entire application with all the c
 
 ## Prerequisite
 
-* Java 17+
-* Maven 3.8.4+
 * Docker 20.10.12+
+* Docker Compose 1.29.2+
 
 ## Architecture
 
@@ -44,41 +43,22 @@ Upon startup, both microservices register with the Spring Cloud Discovery Server
 
 For the sake of simplicity, YugabyteDB and MinIO are deployed in Docker and the other components are started on your host machine as standalone Java applications.
 
-## Create Custom Docker Network
+## Start Application
 
-YugabyteDB and MinIO will be running in Docker containers. 
+Docker Compose allows to start the entire solution with a single command.
 
-Create a custom network for them:
-```shell
-docker network create geo-messenger-net
-```
-
-## Start YugabyteDB
-
-1. Start a three-node YugabyteDB cluster:
+1. Make sure you're located in the project's root directory and run the following command:
     ```shell
-    rm -R ~/yb_docker_data
-    mkdir ~/yb_docker_data
-
-    docker run -d --name yugabytedb_node1 --net geo-messenger-net \
-    -p 7001:7000 -p 5433:5433 \
-    -v ~/yb_docker_data/node1:/home/yugabyte/yb_data --restart unless-stopped \
-    yugabytedb/yugabyte:2.15.3.0-b231 \
-    bin/yugabyted start --listen=yugabytedb_node1 \
-    --base_dir=/home/yugabyte/yb_data --daemon=false
-
-    docker run -d --name yugabytedb_node2 --net geo-messenger-net \
-    -v ~/yb_docker_data/node2:/home/yugabyte/yb_data --restart unless-stopped \
-    yugabytedb/yugabyte:2.15.3.0-b231 \
-    bin/yugabyted start --listen=yugabytedb_node2 --join=yugabytedb_node1 \
-    --base_dir=/home/yugabyte/yb_data --daemon=false
-
-
-    docker run -d --name yugabytedb_node3 --net geo-messenger-net \
-    -v ~/yb_docker_data/node3:/home/yugabyte/yb_data --restart unless-stopped \
-    yugabytedb/yugabyte:2.15.3.0-b231 \
-    bin/yugabyted start --listen=yugabytedb_node3 --join=yugabytedb_node1 \
-    --base_dir=/home/yugabyte/yb_data --daemon=false
+    docker-compose run
+    ```
+2. Wait while all the components are ready by checking the command line output. The Messenger microservice will finish the boostraping the by preloading the mock data:
+    ```java
+    messenger_1         | 2022-11-11 14:52:29.839  INFO 185 --- [  restartedMain] c.y.a.m.data.generator.DataGenerator     : Generating Channels
+    messenger_1         | 2022-11-11 14:52:30.893  INFO 185 --- [  restartedMain] c.y.a.m.data.generator.DataGenerator     : Generating Users
+    messenger_1         | 2022-11-11 14:52:41.515  INFO 185 --- [  restartedMain] c.y.a.m.data.generator.DataGenerator     : Mapping Users to Workspaces
+    messenger_1         | 2022-11-11 14:52:49.748  INFO 185 --- [  restartedMain] c.y.a.m.data.generator.DataGenerator     : Generating Messages
+    messenger_1         | 2022-11-11 14:53:12.965  INFO 185 --- [  restartedMain] c.y.a.m.data.generator.DataGenerator     : Finished data generation
+    messenger_1         | Preloaded all Profiles to local cache
     ```
 
 2. Confirm the instance is running:
