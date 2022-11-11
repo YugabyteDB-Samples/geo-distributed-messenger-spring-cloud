@@ -4,7 +4,7 @@ Follow this instruction if you wish to run the entire application with all the c
 
 <!-- vscode-markdown-toc -->
 
-- [Docker Compose Deployment](#docker-compose-deployment)
+- [Gitpod Deployment](#gitpod-deployment)
   - [Prerequisite](#prerequisite)
   - [Limitations](#limitations)
   - [Architecture](#architecture)
