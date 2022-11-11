@@ -225,7 +225,6 @@ docker container rm yugabytedb_node3
 
 docker network rm geo-messenger-net
 
-rm -R ~/postgresql_data/
 rm -R ~/yb_docker_data
 rm -R ~/minio/data
 
