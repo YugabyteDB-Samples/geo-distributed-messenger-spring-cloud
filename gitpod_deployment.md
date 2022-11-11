@@ -33,31 +33,36 @@ Try out alternate deployment options that fully support attachments:
 
 ## Architecture
 
-![docker_compose_deployment_architecture](https://user-images.githubusercontent.com/1537233/201368434-bf5f2ce9-0fe3-49b1-9715-bf6e13dfe44a.png)
+![gitpod_deployment_architecture](https://user-images.githubusercontent.com/1537233/201374026-cb201384-c1e2-4207-8a1a-3fd77f9e8d1e.png)
 
 The application logic is shared between two microservices.
 
 The main Messenger microservice supports basic messaging capabilities - exchanging messages within various channels. The microservice stores application data (workspaces, users, channels, messages, etc.) in a multi-node YugabyteDB database.
 
-The second Attachments microservice is responsible for storing using pictures (attachements) in MinIO. MinIO is an S3-compliant object store.
+The second Attachments microservice is responsible for storing using pictures (attachements) in MinIO. Presently, it's not supported with the Gitpod deployment option.
 
 Both microservices load configuration settings from the Spring Cloud Config Server. The Config Server stores configurations in the following GitHub repository: https://github.com/YugabyteDB-Samples/geo-distributed-messenger-config-repo
 
 Upon startup, both microservices register with the Spring Cloud Discovery Server. The Discovery Server serves as an API/communication layer. When the Messenger service needs to upload a picture, it discovers an instance of the Attachments microservice via the Discovery Server and sends a request to that instance.
 
-For the sake of simplicity, YugabyteDB and MinIO are deployed in Docker and the other components are started on your host machine as standalone Java applications.
-
 ## Fork This Repository
 
+In order to deploy this app in Gitpod, you must first fork this repository. The app won't start in the `YugabyteDB-Samples` environment.
+
+So, go ahead and fork this repo!
 
 ## Start Application
 
-Docker Compose allows to start the entire solution with a single command.
+1. Open the link below to start the application in Gitpod:
+  ```shell
+  https://gitpod.io/#https://github.com/[your_github_username]/geo-distributed-messenger-spring-cloud
+  ```
 
-1. Make sure you're located in the project's root directory and run the following command:
+2. Wait while Gitpod compiles the image and starts the environment:
     ```shell
     docker-compose run
     ```
+    
 2. Wait while all the components are ready by checking the command line output. The Messenger microservice finishes the boostraping the last by preloading the mock data:
     ```java
     messenger_1         | 2022-11-11 14:52:29.839  INFO 185 --- [  restartedMain] c.y.a.m.data.generator.DataGenerator     : Generating Channels
