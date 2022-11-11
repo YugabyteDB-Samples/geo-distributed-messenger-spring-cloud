@@ -284,8 +284,7 @@ where
     google_metadata_script_runner[2767]: startup-script: 2022-11-11 17:10:56.970  WARN 4475 --- [nnection thread] com.yugabyte.Driver                      : Failed to apply load balance. Trying normal connection
     ``` 
 
-4. Open the app by connecting to `http://{INSTANCE_EXTERNAL_IP}` and log in with `test@gmail.com`/`password`:
-    Note, you can find the external address by running this command:
+4. Open the app by connecting to `http://{INSTANCE_EXTERNAL_IP}` and log in with `test@gmail.com`/`password`. Note, you can find the external address by running this command:
     ```shell
     gcloud compute instances list
     ```
@@ -295,7 +294,7 @@ where
 
 ## Configure Global External Load Balancer
 
-Now that the instances are up and running, configure a global load balancer that will forward user requests to the application instance.
+Once the application instances are up and running, configure a global load balancer that will forward user requests to an instance closest to the user.
 
 ### Add Named Ports to Instance Groups
 
@@ -423,6 +422,9 @@ Create a user-facing frontend (aka. HTTP(s) proxy) that receives requests and fo
 
 After creating the global forwarding rule, it can take several minutes for your configuration to propagate worldwide.
 
+Before proceeding to the next section, confirm the load balancer found all the backends (application instances) and that they are healty. You can find that on the Load Balancing page of `https://console.cloud.google.com`:
+![Load Balancing](https://user-images.githubusercontent.com/1537233/201396406-7fefb9ca-d5d4-4b51-bf0b-04b9479e24b6.png)
+
 ## Test Load Balancer
 
 1. Find the public IP addresses of the load balancer:
@@ -436,10 +438,37 @@ After creating the global forwarding rule, it can take several minutes for your 
     ```shell
     curl -v http://{LOAD_BALANCER_PUBLIC_IP}
     ```
+    Note, it can take several minutes before the load balancer's settings get propogated globally. Until this happens, `curl` will return the following:
+    
+    ```shell
+    ....
+    > User-Agent: curl/7.79.1
+    > Accept: */*
+    > 
+    * Empty reply from server
+    * Closing connection 0
+    curl: (52) Empty reply from server
+    ```
+    
+    Once the load balancer is configured, `curl` will print the following message:
+    ```shell
+    < HTTP/1.1 302 Found
+    < set-cookie: JSESSIONID=52E1989E74BF383666D9AAFFBA63CD0F; Path=/; HttpOnly
+    < x-content-type-options: nosniff
+    < x-xss-protection: 1; mode=block
+    < cache-control: no-cache, no-store, max-age=0, must-revalidate
+    < pragma: no-cache
+    < expires: 0
+    < x-frame-options: DENY
+    < location: http://{YOUR_LOAD_BALANCER_IP}/login
+    < Content-Length: 0
+    < date: Fri, 11 Nov 2022 17:31:53 GMT
+    < via: 1.1 google
+    < 
+    * Connection #0 to host {YOUR_LOAD_BALANCER_IP} left intact
+    ```
 
-    Note, it can take several minutes before the load balancer's settings get propogated globally. Until this happens, the `curl` command might hit different HTTP errors.
-
-## Test Application
+## Play With Application
 
 Once the cloud load balancer is ready, use its IP address to access the application from the browser.
 
