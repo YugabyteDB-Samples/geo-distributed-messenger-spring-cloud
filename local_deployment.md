@@ -196,25 +196,32 @@ Once the Config and Discover Servers are started, also start the Messenger micro
     ```
 
 4. Send a few messages and try to upload a picture:
-  
+    ![Messenger](https://user-images.githubusercontent.com/1537233/201361113-b21d2095-d7c9-4c20-b4db-d595aa4eb79c.png)
 
-Enjoy and have fun! 
 
-Next, try out the [cloud-native geo-distributed deployment option](gcloud_deployment.md) of the messenger that spans accross countries and continents.
+Note, during the first launch, it might take several minutes for Vaadin to compile the frontend. During this time the http://localhost:8080, should show the following message:
+![Vaadin compiling](https://user-images.githubusercontent.com/1537233/201361833-6c303714-d334-40c7-a6ad-578f4b989d07.png)
+
+Enjoy and make sure to check the source code! 
+
+Next, try out the [geo-distributed deployment option](gcloud_deployment.md) of the application that spans accross countries and continents in Google Cloud.
 
 ## Clean Resources
 
 If you're done working with the app, then use these command to remove Docker containers and other resources associated with them:
 
 ```shell
-docker kill kong-gateway
-docker container rm kong-gateway
-
 docker kill minio1
 docker container rm minio1
 
 docker kill yugabytedb_node1
 docker container rm yugabytedb_node1
+
+docker kill yugabytedb_node2
+docker container rm yugabytedb_node2
+
+docker kill yugabytedb_node3
+docker container rm yugabytedb_node3
 
 docker network rm geo-messenger-net
 
