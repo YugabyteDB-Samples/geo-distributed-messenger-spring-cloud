@@ -31,16 +31,19 @@ Follow this instruction if you wish to run the entire application with all the c
 
 ## Architecture
 
-![architecture_local_deployment](https://user-images.githubusercontent.com/1537233/197897660-cc063e29-7f6e-4da2-8754-97548c879cc3.png)
+![local_deployment_architecture](https://user-images.githubusercontent.com/1537233/201354805-e0c67da5-d5d7-4786-bb2c-70f237ec833a.png)
 
 The application logic is shared between two microservices.
 
-The main Messaging microservice implements basic messaging capabilities letting exchange messages and content across messenger's channels. The microservices stores application data (workspaces, users, channels, messages, etc.) in YugabyteDB database.
+The main Messenger microservice supports basic messaging capabilities - exchanging messages within various channels. The microservice stores application data (workspaces, users, channels, messages, etc.) in a multi-node YugabyteDB database.
 
-The second Attachments microservice is responsible for storing using pictures (attachements) in an object storage. MinIO is used as that storage for the local deployment.
+The second Attachments microservice is responsible for storing using pictures (attachements) in MinIO. MinIO is an S3-compliant object store.
 
-The Messaging microservice communicates to the Attachments one via the Kong Gateway. If the user wants to share a picture, the Messaging service triggers a special API endpoint on the Kong end and that endpoint routes the request to the Attachments instance.
+Both microservices load configuration settings from the Spring Cloud Config Server. The Config Server stores configurations in the following GitHub repository: https://github.com/YugabyteDB-Samples/geo-distributed-messenger-config-repo
 
+Upon startup, both microservices register with the Spring Cloud Discovery Server. The Discovery Server serves as an API/communication layer. When the Messenger service needs to upload a picture, it discovers an instance of the Attachments microservice via the Discovery Server and sends a request to that instance.
+
+For the sake of simplicity, YugabyteDB and MinIO are deployed in Docker and the other components are started on your host machine as standalone Java applications.
 
 ## Create Custom Docker Network
 
