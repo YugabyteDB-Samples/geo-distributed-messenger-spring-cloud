@@ -82,11 +82,15 @@ docker network create geo-messenger-net
     --base_dir=/home/yugabyte/yb_data --daemon=false
     ```
 
-2. Confirm the instance is running: http://127.0.0.1:7001
+2. Confirm the instance is running:
+    http://127.0.0.1:7001
+
+    ![YugabyteDB Cluster](https://user-images.githubusercontent.com/1537233/201357005-7ddf853f-c501-422f-a675-61527e6ec214.png)
+
 
 ## Start Minio
 
-[Minio](https://min.io) is used in local deployments as an object store for pictures that are loaded through the Attachments service. 
+[Minio](https://min.io) is used in local deployments as an object store for pictures that are loaded via the Attachments microservice. 
 
 1. Start the Minio service in:
     ```shell
@@ -104,8 +108,11 @@ docker network create geo-messenger-net
     quay.io/minio/minio:RELEASE.2022-08-26T19-53-15Z server /data --console-address ":9001"
     ```
 
-2. Open the Minio console and log in using the `minio_user` as the user and `password` as the password:
+2. Open the Minio console and log in using the following credentials - `minio_user` / `password`:
     http://127.0.0.1:9001
+
+    ![MinIO Console](https://user-images.githubusercontent.com/1537233/201357361-ec2c6535-865f-471c-968d-b339fd6bc0b4.png)
+
 
 ## Start Config Server
 
