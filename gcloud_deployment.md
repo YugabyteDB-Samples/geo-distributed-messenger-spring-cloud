@@ -472,12 +472,19 @@ Before proceeding to the next section, confirm the load balancer found all the b
 
 Once the cloud load balancer is ready, use its IP address to access the application from the browser.
 
-Use the following credentials to sing in the messenger:
-```shell
-username: test@gmail.com
-pwd: password
-```
+1. Open the load balancer's address `http://{LOAD_BALANCER_PUBLIC_IP}` in your browser and log in using `test@gmail.com`/`password`. 
 
-Follow [this arcticle](https://dzone.com/articles/using-global-cloud-load-balancer-to-route-user-req) to see how to test the app with the usage of the load balancer.
+2. Send a few messages in the app and upload a picture:
+    ![Messages](https://user-images.githubusercontent.com/1537233/201398523-7dae24bc-ab42-48f0-b72f-668070e23533.png)
 
-Enjoy and have fun!
+The load balancer will forward your request to the nearest application one. To determine your current instance:
+
+1. Go to the `Load Balancing`page of `https://console.cloud.google.com` and open the `Monitoring` tab.
+
+2. Explore the diagram like the one below. In my case, the nearest location was in the US East region `ig-us-east`. Yours might be different depending on where you are in the world:
+    ![Screen Shot 2022-11-11 at 12 44 28 PM](https://user-images.githubusercontent.com/1537233/201398951-fa07b0fc-ec5a-4e89-8034-8c8c6a959152.png)
+  
+
+
+
+
