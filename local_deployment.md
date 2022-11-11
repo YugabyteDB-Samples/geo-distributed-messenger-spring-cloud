@@ -47,7 +47,7 @@ For the sake of simplicity, YugabyteDB and MinIO are deployed in Docker and the 
 
 ## Create Custom Docker Network
 
-YugabyteDB and Minio will be running in Docker containers. 
+YugabyteDB and MinIO will be running in Docker containers. 
 
 Create a custom network for them:
 ```shell
