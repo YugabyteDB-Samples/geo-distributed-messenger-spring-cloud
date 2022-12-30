@@ -1,10 +1,18 @@
 package com.yugabyte.app.messenger.data.entity;
 
+import java.util.ArrayList;
+import java.util.List;
+
+import javax.persistence.CascadeType;
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.IdClass;
+import javax.persistence.JoinColumn;
+import javax.persistence.JoinTable;
+import javax.persistence.ManyToMany;
 import javax.persistence.SequenceGenerator;
 import javax.validation.constraints.Email;
 import javax.validation.constraints.NotEmpty;
@@ -37,14 +45,12 @@ public class Profile {
 
     private String userPictureUrl;
 
-    // @ManyToMany
-    // @JoinTable(name = "WorkspaceProfile", joinColumns = {
-    // @JoinColumn(name = "profileId", referencedColumnName = "id"),
-    // @JoinColumn(name = "workspaceCountry", referencedColumnName = "countryCode")
-    // })
-    // @Column(updatable = false, insertable = false)
-    // // @LazyCollection(LazyCollectionOption.TRUE)
-    // private Set<Workspace> workspaces;
+    @ManyToMany(cascade = {}, fetch = FetchType.EAGER)
+    @JoinTable(name = "WorkspaceProfile", joinColumns = { @JoinColumn(name = "profile_id", referencedColumnName = "id"),
+            @JoinColumn(name = "profile_country", referencedColumnName = "countryCode") }, inverseJoinColumns = {
+                    @JoinColumn(name = "workspace_country", referencedColumnName = "countryCode"),
+                    @JoinColumn(name = "workspace_id", referencedColumnName = "id") })
+    private List<Workspace> workspaces = new ArrayList<>();
 
     public Integer getId() {
         return id;
@@ -102,9 +108,9 @@ public class Profile {
         this.userPictureUrl = userPictureUrl;
     }
 
-    // public Set<Workspace> getWorkspaces() {
-    // return workspaces;
-    // }
+    public List<Workspace> getWorkspaces() {
+        return workspaces;
+    }
 
     @Override
     public String toString() {

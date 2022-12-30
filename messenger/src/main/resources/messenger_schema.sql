@@ -2,8 +2,7 @@ CREATE SCHEMA Messenger;
 
 SET search_path TO Messenger;
 
-CREATE SEQUENCE profile_id_seq
-    CACHE 100;
+CREATE SEQUENCE profile_id_seq CACHE 100;
 
 CREATE TABLE Profile (
     id integer DEFAULT nextval('profile_id_seq'),

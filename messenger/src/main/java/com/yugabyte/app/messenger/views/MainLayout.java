@@ -16,6 +16,7 @@ import com.vaadin.flow.router.PageTitle;
 import com.yugabyte.app.messenger.data.entity.Profile;
 import com.yugabyte.app.messenger.data.entity.Workspace;
 import com.yugabyte.app.messenger.data.service.MessagingService;
+import com.yugabyte.app.messenger.data.service.ProfileService;
 import com.yugabyte.app.messenger.security.AuthenticatedUser;
 
 import java.util.List;
@@ -32,9 +33,13 @@ public class MainLayout extends AppLayout {
 
     private MessagingService messengingService;
 
-    public MainLayout(AuthenticatedUser authenticatedUser, MessagingService messengingService) {
+    private ProfileService profileService;
+
+    public MainLayout(AuthenticatedUser authenticatedUser, MessagingService messengingService,
+            ProfileService profileService) {
         this.authenticatedUser = authenticatedUser;
         this.messengingService = messengingService;
+        this.profileService = profileService;
 
         setPrimarySection(Section.DRAWER);
 
@@ -63,7 +68,7 @@ public class MainLayout extends AppLayout {
         if (maybeUser.isPresent()) {
             Profile user = maybeUser.get();
 
-            List<Workspace> workspaces = messengingService.getUserWorkspaces(user);
+            List<Workspace> workspaces = user.getWorkspaces();
 
             section = new com.vaadin.flow.component.html.Section(
                     createChannelsList(user, workspaces), createFooter());

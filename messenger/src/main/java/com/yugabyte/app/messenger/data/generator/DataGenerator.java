@@ -7,11 +7,9 @@ import com.yugabyte.app.messenger.data.entity.Channel;
 import com.yugabyte.app.messenger.data.entity.Message;
 import com.yugabyte.app.messenger.data.entity.Profile;
 import com.yugabyte.app.messenger.data.entity.Workspace;
-import com.yugabyte.app.messenger.data.entity.WorkspaceProfile;
 import com.yugabyte.app.messenger.data.repository.ChannelRepository;
 import com.yugabyte.app.messenger.data.repository.MessageRepository;
 import com.yugabyte.app.messenger.data.repository.ProfileRepository;
-import com.yugabyte.app.messenger.data.repository.WorkspaceProfileRepository;
 import com.yugabyte.app.messenger.data.repository.WorkspaceRepository;
 
 import java.time.LocalDateTime;
@@ -31,7 +29,7 @@ public class DataGenerator {
         @Bean
         public CommandLineRunner loadData(PasswordEncoder passwordEncoder, ProfileRepository userRepository,
                         WorkspaceRepository workspaceRepository,
-                        WorkspaceProfileRepository workspaceProfileRepository, ChannelRepository channelRepository,
+                        ChannelRepository channelRepository,
                         MessageRepository messageRepository) {
                 return args -> {
                         Logger logger = LoggerFactory.getLogger(getClass());
@@ -124,65 +122,67 @@ public class DataGenerator {
 
                         List<Profile> profilesWithIds = userRepository.findAll();
 
-                        ExampleDataGenerator<WorkspaceProfile> wpGenerator = new ExampleDataGenerator<>(
-                                        WorkspaceProfile.class,
-                                        LocalDateTime.now());
+                        // ExampleDataGenerator<WorkspaceProfile> wpGenerator = new
+                        // ExampleDataGenerator<>(
+                        // WorkspaceProfile.class,
+                        // LocalDateTime.now());
 
-                        List<WorkspaceProfile> workspaceProfiles = wpGenerator.create(1000, seed)
-                                        .stream().map(
-                                                        workProfile -> {
-                                                                Profile profile = profilesWithIds.get(
-                                                                                rand.nextInt(profilesWithIds.size()));
+                        // List<WorkspaceProfile> workspaceProfiles = wpGenerator.create(1000, seed)
+                        // .stream().map(
+                        // workProfile -> {
+                        // Profile profile = profilesWithIds.get(
+                        // rand.nextInt(profilesWithIds.size()));
 
-                                                                workProfile.setProfileId(profile.getId());
-                                                                workProfile.setProfileCountry(profile.getCountryCode());
+                        // workProfile.setProfileId(profile.getId());
+                        // workProfile.setProfileCountry(profile.getCountryCode());
 
-                                                                Workspace workspace = workspacesWithIds.get(
-                                                                                rand.nextInt(workspacesWithIds.size()));
+                        // Workspace workspace = workspacesWithIds.get(
+                        // rand.nextInt(workspacesWithIds.size()));
 
-                                                                workProfile.setWorkspaceId(workspace.getId());
-                                                                workProfile.setWorkspaceCountry(
-                                                                                workspace.getCountryCode());
+                        // workProfile.setWorkspaceId(workspace.getId());
+                        // workProfile.setWorkspaceCountry(
+                        // workspace.getCountryCode());
 
-                                                                return workProfile;
-                                                        })
-                                        .collect(Collectors.toList());
+                        // return workProfile;
+                        // })
+                        // .collect(Collectors.toList());
 
-                        workspaceProfileRepository.saveAll(workspaceProfiles);
+                        // workspaceProfileRepository.saveAll(workspaceProfiles);
 
                         // Generating messages
 
                         logger.info("Generating Messages");
 
-                        for (Workspace workspace : workspacesWithIds) {
-                                List<Channel> workspaceChannels = channelRepository
-                                                .findByWorkspaceIdAndCountryCode(workspace.getId(),
-                                                                workspace.getCountryCode());
-                                List<WorkspaceProfile> workspaceWP = workspaceProfileRepository
-                                                .findByWorkspaceIdAndWorkspaceCountry(workspace.getId(),
-                                                                workspace.getCountryCode());
+                        // for (Workspace workspace : workspacesWithIds) {
+                        // List<Channel> workspaceChannels = channelRepository
+                        // .findByWorkspaceIdAndCountryCode(workspace.getId(),
+                        // workspace.getCountryCode());
+                        // List<WorkspaceProfile> workspaceWP = workspaceProfileRepository
+                        // .findByWorkspaceIdAndWorkspaceCountry(workspace.getId(),
+                        // workspace.getCountryCode());
 
-                                ExampleDataGenerator<Message> mGenerator = new ExampleDataGenerator<>(Message.class,
-                                                LocalDateTime.now());
-                                mGenerator.setData(Message::setMessage, DataType.SENTENCE);
+                        // ExampleDataGenerator<Message> mGenerator = new
+                        // ExampleDataGenerator<>(Message.class,
+                        // LocalDateTime.now());
+                        // mGenerator.setData(Message::setMessage, DataType.SENTENCE);
 
-                                List<Message> messages = mGenerator.create(100, seed).stream().map(
-                                                message -> {
-                                                        message.setCountryCode(workspace.getCountryCode());
-                                                        message.setChannelId(workspaceChannels
-                                                                        .get(rand.nextInt(workspaceChannels.size()))
-                                                                        .getId());
-                                                        WorkspaceProfile wProfile = workspaceWP
-                                                                        .get(rand.nextInt(workspaceWP.size()));
+                        // List<Message> messages = mGenerator.create(100, seed).stream().map(
+                        // message -> {
+                        // message.setCountryCode(workspace.getCountryCode());
+                        // message.setChannelId(workspaceChannels
+                        // .get(rand.nextInt(workspaceChannels.size()))
+                        // .getId());
+                        // WorkspaceProfile wProfile = workspaceWP
+                        // .get(rand.nextInt(workspaceWP.size()));
 
-                                                        message.setSenderId(wProfile.getProfileId());
-                                                        message.setSenderCountryCode(wProfile.getProfileCountry());
+                        // message.setSenderId(wProfile.getProfileId());
+                        // message.setSenderCountryCode(wProfile.getProfileCountry());
 
-                                                        return message;
-                                                }).collect(Collectors.toList());
+                        // return message;
+                        // }).collect(Collectors.toList());
 
-                                messageRepository.saveAll(messages);
-                        }
+                        // messageRepository.saveAll(messages);
+                        // }
 
                         logger.info("Finished data generation");
                 };
