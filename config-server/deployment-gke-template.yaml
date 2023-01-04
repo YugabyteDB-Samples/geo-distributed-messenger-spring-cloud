@@ -1,0 +1,23 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: config-server-gke
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: config-server
+  template:
+    metadata:
+      labels:
+        app: config-server
+    spec:
+      containers:
+        - name: config-server-gke
+          image: REGION-docker.pkg.dev/GOOGLE_PROJECT_ID/geo-distributed-messenger-repo/config-server-gke:latest
+          # This service listens on port 8888 for web traffic by default.
+          ports:
+            - containerPort: 8888
+          env:
+            - name: CONFIG_SERVER_PORT
+              value: "8888"

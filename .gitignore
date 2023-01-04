@@ -37,3 +37,4 @@ gcloud/*.pem
 gcloud/google-storage-account-key.json
 gcloud/instructions_private.md
 /private
+config-server/deployment-gke.yaml
