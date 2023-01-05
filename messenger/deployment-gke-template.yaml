@@ -49,10 +49,5 @@ spec:
                 secretKeyRef:
                   name: database-endpoint
                   key: password
-            - name: DB_ADDITIONAL_ENDPOINTS
-              valueFrom:
-                secretKeyRef:
-                  name: database-endpoint
-                  key: additional_endpoints
             - name: DB_MODE
               value: "standard"

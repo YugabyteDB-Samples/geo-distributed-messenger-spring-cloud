@@ -41,3 +41,4 @@ config-server/deployment-gke.yaml
 discovery-server/deployment-gke.yaml
 attachments/deployment-gke.yaml
 messenger/secret-gke.yaml
+messenger/deployment-gke.yaml

@@ -167,5 +167,5 @@ Next, start an instance of the Attachments and Messenger microservices.
 8. Access the Attachments and Messenger microservices using the `EXTERNAL_IP` of the corresponding K8 Services:
     ```shell
     curl http://ATTACHMENTS_SERVICE_EXTERNAL_IP/ping 
-    curl http://DISCOVERY_SERVER_SERVICE_EXTERNAL_IP:8761/
+    curl http://MESSENGER_SERVICE_EXTERNAL_IP/login
     ```
