@@ -135,7 +135,7 @@ Next, start an instance of the Attachments and Messenger microservices.
     ```
 2. Start the microservices in GKE using the script below:
     ```shell
-    ./start_spring_cloud_servers_in_gke.sh -r us-east4 -p YOUR_PROJECT_ID
+    ./start_app_in_gke.sh -r us-east4 -p YOUR_PROJECT_ID
     ```
 
     Replace the `YOUR_PROJECT_ID` placeholder with your Google project id.
@@ -145,7 +145,7 @@ Next, start an instance of the Attachments and Messenger microservices.
     kubectl get deployments
 
     # Also, you can follow the logs of a spefic deployment for more details:
-    kubectl logs -f deployment/config-server-gke
+    kubectl logs -f deployment/attachments-gke
     ```
 
 4. Verify the pods are running:
@@ -158,8 +158,8 @@ Next, start an instance of the Attachments and Messenger microservices.
     kubectl get services
     ```
 
-6. Access Discovery and Config servers using the `EXTERNAL_IP` of corresponding Services:
+6. Access the Attachments and Messenger microservices using the `EXTERNAL_IP` of the corresponding K8 Services:
     ```shell
-    curl http://CONFIG_SERVER_SERVICE_EXTERNAL_IP:8888/messenger/prod
+    curl http://ATTACHMENTS_SERVICE_EXTERNAL_IP/ping 
     curl http://DISCOVERY_SERVER_SERVICE_EXTERNAL_IP:8761/
     ```

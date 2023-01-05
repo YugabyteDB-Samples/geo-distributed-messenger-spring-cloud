@@ -19,4 +19,4 @@ kubectl apply -f deployment-gke.yaml
 echo "Starting an Attachments service in $region..."
 
 kubectl apply -f service-gke.yaml
-kubectl get service config-server-service
+kubectl get service attachments-service
