@@ -133,14 +133,20 @@ Next, start an instance of the Attachments and Messenger microservices.
     ```shell
     cd PROJECT_ROO_DIR/gcloud
     ```
-2. Start the microservices in GKE using the script below:
+2. Create the `secret-gke.yaml` file using the command below:
+    ```shell
+    cp ../messenger/secret-gke-template.yaml ../messenger/secret-gke.yaml
+    ```
+3. Provide YugabyteDB connectivity settings in the created `secret-gke.yaml` file.
+
+4. Start the microservices in GKE using the script below:
     ```shell
     ./start_app_in_gke.sh -r us-east4 -p YOUR_PROJECT_ID
     ```
 
     Replace the `YOUR_PROJECT_ID` placeholder with your Google project id.
 
-3. Wait while all the deployments are ready:
+5. Wait while all the deployments are ready:
     ```shell
     kubectl get deployments
 
@@ -148,17 +154,17 @@ Next, start an instance of the Attachments and Messenger microservices.
     kubectl logs -f deployment/attachments-gke
     ```
 
-4. Verify the pods are running:
+6. Verify the pods are running:
     ```shell
     kubectl get pods
     ```
 
-5. Verify the Services are running as well:
+7. Verify the Services are running as well:
     ```shell
     kubectl get services
     ```
 
-6. Access the Attachments and Messenger microservices using the `EXTERNAL_IP` of the corresponding K8 Services:
+8. Access the Attachments and Messenger microservices using the `EXTERNAL_IP` of the corresponding K8 Services:
     ```shell
     curl http://ATTACHMENTS_SERVICE_EXTERNAL_IP/ping 
     curl http://DISCOVERY_SERVER_SERVICE_EXTERNAL_IP:8761/
