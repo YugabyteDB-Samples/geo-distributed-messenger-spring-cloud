@@ -1,0 +1,58 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: messenger-gke
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: messenger
+  template:
+    metadata:
+      labels:
+        app: messenger
+    spec:
+      containers:
+        - name: messenger-gke
+          image: _REGION-docker.pkg.dev/_PROJECT_ID/geo-distributed-messenger-repo/messenger-gke:latest
+          # This service listens on port 80 for web traffic by default.
+          ports:
+            - containerPort: 80
+          env:
+            - name: MESSAGING_SERVICE_PORT
+              value: "80"
+            - name: CONFIG_SERVER_HOST
+              value: "config-server-service" # the name of the corresponding K8 Service
+            - name: CONFIG_SERVER_PORT
+              value: "8888"
+            - name: DISCOVERY_SERVER_HOST
+              value: "discovery-server-service" # the name of the corresponding K8 Service
+            - name: DISCOVERY_SERVER_PORT
+              value: "8761"
+            - name: DB_PRIMARY_ENDPOINT
+              valueFrom:
+                secretKeyRef:
+                  name: database-endpoint
+                  key: primary_endpoint
+            - name: DB_PORT
+              valueFrom:
+                secretKeyRef:
+                  name: database-endpoint
+                  key: port
+            - name: DB_USER
+              valueFrom:
+                secretKeyRef:
+                  name: database-endpoint
+                  key: user
+            - name: DB_PWD
+              valueFrom:
+                secretKeyRef:
+                  name: database-endpoint
+                  key: password
+            - name: DB_ADDITIONAL_ENDPOINTS
+              valueFrom:
+                secretKeyRef:
+                  name: database-endpoint
+                  key: additional_endpoints
+            - name: DB_MODE
+              value: "standard"
