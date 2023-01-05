@@ -23,12 +23,14 @@ The instruction explains how to deploy the applicaion in Google Kubernetes Engin
 
 5. [Enable](https://console.cloud.google.com/flows/enableapi?apiid=artifactregistry.googleapis.com,cloudbuild.googleapis.com,container.googleapis.com&redirect=https://console.cloud.google.com&_ga=2.220829720.1831599196.1672860095-1629291620.1658249275&_gac=1.192717528.1671329959.CjwKCAiA7vWcBhBUEiwAXieItpcBgXS6j-SP2knNZYtSNXNn5f47EGszdv3UbRLZfbWH8alv4pQ9cxoCSG0QAvD_BwE) Artifact Registry, Cloud Build and Kubernetes Engine APIs.
 
-## Store App Containers in Artifact Registry
+## Enable Google Cloud Storage
+
+The Attachments microservice uploads pictures to the [Google Cloud Storage](https://cloud.google.com/storage). Enable the service for this Google project.
+
+## Create Artifact Registry Repository
 
 First, you need to create a Docker container for each application microservice and load the container
 to [Artifact Registry](https://cloud.google.com/artifact-registry).
-
-### Create Docker Repository
 
 Create a repository for Docker images in the registry:
 ```shell
@@ -38,41 +40,40 @@ gcloud artifacts repositories create geo-distributed-messenger-repo \
     --description="Docker repository for geo-distributed messenger containers"
 ```
 
-### Build and Load App Containers
+## Prepare App Images
 
 1. Build a Config Server's docker image using [Cloud Build](https://cloud.google.com/build):
     ```shell
     cd config-server
 
-    gcloud builds submit \
-        --tag us-east4-docker.pkg.dev/PROJECT_ID/geo-distributed-messenger-repo/config-server-gke .
+    gcloud builds submit --config cloudbuild.yaml \
+        --substitutions _REGION=us-east4
     ```
-    
-    Replace `PROJECT_ID` with your project created earlier.
 
 2. Build a Discover Service's image:
     ```shell
     cd ../discovery-server
 
-    gcloud builds submit \
-        --tag us-east4-docker.pkg.dev/PROJECT_ID/geo-distributed-messenger-repo/discovery-server-gke .
+    gcloud builds submit --config cloudbuild.yaml \
+        --substitutions _REGION=us-east4
     ```
 
 3. Build an Attachment's microservice image:
     ```shell
     cd ../attachments
 
-    gcloud builds submit \
-        --tag us-east4-docker.pkg.dev/PROJECT_ID/geo-distributed-messenger-repo/attachments-gke .
+    gcloud builds submit --config cloudbuild.yaml \
+        --substitutions _REGION=us-east4
     ```
 4. Finally, build the last image for the Messenger microservice:
     ```shell
     cd ../messenger
 
-    gcloud builds submit \
-        --tag us-east4-docker.pkg.dev/PROJECT_ID/geo-distributed-messenger-repo/messenger-gke .
+    gcloud builds submit --config cloudbuild.yaml \
+        --substitutions _REGION=us-east4
     ```        
-## Create a GKE Cluster
+
+## Start a GKE Cluster
 
 1. Create a Kubernetes cluster within the `us-east4` region:
     ```shell
@@ -85,45 +86,80 @@ gcloud artifacts repositories create geo-distributed-messenger-repo \
     kubectl get nodes
     ```
 
-## Deploy App to GKE
+## Start Config and Discovery Servers in GKE
 
-1. Navigate to the Config Server's directory and prepare GKE deployment files:
+First, start two Spring Cloud components (Config and Discovery servers) that are used by the application logic.
+
+1. Navigate to the `gcloud` directory of the project:
     ```shell
-    cd PROJECT_ROO_DIR/config-server
-
-    # Substitute the `PROJECT_ID` placeholder with your Google Project ID first:
-    cat deployment-gke-template.yaml | sed 's/REGION/us-east4/g' | sed 's/GOOGLE_PROJECT_ID/PROJECT_ID/g' > deployment-gke.yaml
+    cd PROJECT_ROO_DIR/gcloud
+    ```
+2. Start the application instances in GKE using the script below:
+    ```shell
+    ./start_spring_cloud_servers_in_gke.sh -r us-east4 -p YOUR_PROJECT_ID
     ```
 
-2. Deploy a server's pod:
-    ```shell
-    kubectl apply -f deployment-gke.yaml
-    ```
+    Replace the `YOUR_PROJECT_ID` placeholder with your Google project id.
 
-3. Track the status of the deployment:
+3. Wait while all the deployments are ready:
     ```shell
-    kubectl get deployments config-server-gke
+    kubectl get deployments
 
-    # Also, you can follow the logs for more details:
+    # Also, you can follow the logs of a spefic deployment for more details:
     kubectl logs -f deployment/config-server-gke
     ```
 
-4. Once the deployment is finished, check the status of the pod:
+4. Verify the pods are running:
     ```shell
-    kubectl get pods --selector=app=config-server
-    ```
-5. Deploy a Kubernetes service for the Config Server's pods:
-    ```shell
-    kubectl apply -f service-gke.yaml
-    ```
-6. Get the external IP address of the service:
-    ```shell
-    kubectl get service config-server-service
+    kubectl get pods
     ```
 
-    It can take up to 60 seconds to allocate the IP address.
-
-7. Make sure you can query the Config Server from your laptop by loading the Messenger's microservice configuration:
+5. Verify the Services are running as well:
     ```shell
-    curl http://34.86.153.141:8888/messenger/dev
+    kubectl get services
+    ```
+
+6. Access Discovery and Config servers using the `EXTERNAL_IP` of corresponding Services:
+    ```shell
+    curl http://CONFIG_SERVER_SERVICE_EXTERNAL_IP:8888/messenger/prod
+    curl http://DISCOVERY_SERVER_SERVICE_EXTERNAL_IP:8761/
+    ```
+
+## Start Attachments and Messenger Services in GKE
+
+Next, start an instance of the Attachments and Messenger microservices.
+
+1. Ensure that you're in the `gcloud` directory of the project:
+    ```shell
+    cd PROJECT_ROO_DIR/gcloud
+    ```
+2. Start the microservices in GKE using the script below:
+    ```shell
+    ./start_spring_cloud_servers_in_gke.sh -r us-east4 -p YOUR_PROJECT_ID
+    ```
+
+    Replace the `YOUR_PROJECT_ID` placeholder with your Google project id.
+
+3. Wait while all the deployments are ready:
+    ```shell
+    kubectl get deployments
+
+    # Also, you can follow the logs of a spefic deployment for more details:
+    kubectl logs -f deployment/config-server-gke
+    ```
+
+4. Verify the pods are running:
+    ```shell
+    kubectl get pods
+    ```
+
+5. Verify the Services are running as well:
+    ```shell
+    kubectl get services
+    ```
+
+6. Access Discovery and Config servers using the `EXTERNAL_IP` of corresponding Services:
+    ```shell
+    curl http://CONFIG_SERVER_SERVICE_EXTERNAL_IP:8888/messenger/prod
+    curl http://DISCOVERY_SERVER_SERVICE_EXTERNAL_IP:8761/
     ```

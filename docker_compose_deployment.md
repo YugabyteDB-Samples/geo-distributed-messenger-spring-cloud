@@ -52,7 +52,7 @@ Docker Compose allows to start the entire solution with a single command.
 
 1. Make sure you're located in the project's root directory and run the following command:
     ```shell
-    docker-compose run
+    docker-compose up --build
     ```
 2. Wait while all the components are ready by checking the command line output. The Messenger microservice finishes the bootstrapping the last by preloading the mock data:
     ```java
