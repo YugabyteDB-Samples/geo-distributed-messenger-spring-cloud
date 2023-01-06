@@ -2,6 +2,9 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: messenger-gke
+  namespace: geo-messenger
+  labels:
+    app: messenger
 spec:
   replicas: 1
   selector:
@@ -12,7 +15,7 @@ spec:
       labels:
         app: messenger
     spec:
-      serviceAccountName: messenger-service-account
+      serviceAccountName: _SERVICE_ACCOUNT
       nodeSelector:
         iam.gke.io/gke-metadata-server-enabled: "true"
       containers:

@@ -32,7 +32,7 @@ The Attachments microservice uploads pictures to the [Google Cloud Storage](http
 First, you need to create a Docker container for each application microservice and load the container
 to [Artifact Registry](https://cloud.google.com/artifact-registry).
 
-Create a repository for Docker images in the registry:
+1. Create a repository for Docker images in the `us-east4` region:
 ```shell
 gcloud artifacts repositories create geo-distributed-messenger-repo \
     --repository-format=docker \
@@ -40,128 +40,235 @@ gcloud artifacts repositories create geo-distributed-messenger-repo \
     --description="Docker repository for geo-distributed messenger containers"
 ```
 
+2. Also, create and store the images in the `europe-west1` region:
+    ```shell
+    gcloud artifacts repositories create geo-distributed-messenger-repo \
+        --repository-format=docker \
+        --location=europe-west1 \
+        --description="Docker repository for geo-distributed messenger containers"
+    ```
+
 ## Prepare App Images
 
-1. Build a Config Server's docker image using [Cloud Build](https://cloud.google.com/build):
-    ```shell
-    cd config-server
+Build a Docker image for each application microservice and store the images in selected cloud regions.
 
-    gcloud builds submit --config cloudbuild.yaml \
-        --substitutions _REGION=us-east4
+1. Navigate to the `gcloud/gke` directory of the project:
+    ```shell
+    cd PROJECT_ROO_DIR/gcloud/gke
     ```
 
-2. Build an Attachment's microservice image:
+2. Build and submit images to the `us-east4` region:
     ```shell
-    cd ../attachments
-
-    gcloud builds submit --config cloudbuild.yaml \
-        --substitutions _REGION=us-east4
-    ```
-3. Finally, build the last image for the Messenger microservice:
-    ```shell
-    cd ../messenger
-
-    gcloud builds submit --config cloudbuild.yaml \
-        --substitutions _REGION=us-east4
-    ```        
-
-## Start GKE Cluster
-
-1. Create a Kubernetes cluster within the `us-east4` region:
-    ```shell
-    gcloud container clusters create-auto geo-distributed-messenger-gke \
-        --scopes=gke-default,storage-full --region us-east4
+    ./build_docker_images.sh \
+        -r us-east4
     ```
 
-2. Verify you have access to the cluster by getting a list of running nodes:
+3. Repeate the build process for the `europe-west1` region:
     ```shell
-    kubectl get nodes
+    ./build_docker_images.sh \
+        -r europe-west1
     ```
 
-## Configure Workload Identity
+## Enable Anthos Pricing
 
-The Attachments microservice stores pictures in Google Cloud Storage. An Attachments pod must be granted the Cloud Storage access permissions. This can be done by configuring the [workload identity](https://cloud.google.com/kubernetes-engine/docs/how-to/workload-identity)
+In the guide below, you'll deploy multiple kubernetes clusters that can be accessed via the Multi Region Ingress. 
+The ingress will be managed as part of the [Anthos platform](https://cloud.google.com/anthos).
 
-1. Get credentials for the cluster:
+Enable the Anthos pricing for you project:
+```shell
+gcloud services enable \
+    anthos.googleapis.com \
+    multiclusteringress.googleapis.com \
+    gkehub.googleapis.com \
+    container.googleapis.com \
+    multiclusterservicediscovery.googleapis.com
+```
+
+## Create Service Account
+
+Create a service account that will be used by Kubernetes workloads.
+
+1. Make sure you're in the `gcloud/gke` directory of the project:
     ```shell
-    gcloud container clusters get-credentials geo-distributed-messenger-gke --region us-east4
+    cd PROJECT_ROO_DIR/gcloud/gke
     ```
 
-2. Create a Kubernetes service account:
+2. Create the service account named `geo-messenger-sa`:
     ```shell
-    kubectl create serviceaccount messenger-service-account --namespace default
+    ./create_gke_service_account.sh -n geo-messenger-sa
     ```
 
-3. Create an IAM service account:
+## Start GKE Clusters
+
+Start two GKE clusters in distant cluster locations and register them with the fleet:
+
+1. Make sure you're in the `gcloud/gke` directory of the project:
     ```shell
-    gcloud iam service-accounts create messenger-google-sa --project=YOUR_PROJECT_ID
+    cd PROJECT_ROO_DIR/gcloud/gke
     ```
 
-    Replace the `YOUR_PROJECT_ID` placeholder with your Google project id.
-
-4. Grant the full access role to Cloud Storage to the IAM account:
+2. Start the first cluster in the `us-east4` region:
     ```shell
-    gcloud projects add-iam-policy-binding YOUR_PROJECT_ID \
-    --member "serviceAccount:messenger-google-sa@YOU_PROJECT_ID.iam.gserviceaccount.com" \
-    --role "roles/storage.admin"
+    ./start_gke_cluster.sh \
+        -r us-east4 \
+        -n gke-us-east4 \
+        -s geo-messenger-sa \
+        -a geo-messenger-k8-sa
     ```
 
-    Replace the `YOUR_PROJECT_ID` placeholder with your Google project id.
+    the arguments are:
+    * `-r` - the name of a cloud region
+    * `-n` - the name of the GKE cluster that will be created by the script
+    * `-s` - the name of the IAM service account (created earlier)
+    * `-a` - the name of the Kubernetes service account (created by the script) 
 
-5. Allow the Kubernetes service account to impersonate the IAM service account by adding an IAM policy binding between the two service accounts:
+3. Start the second cluster in the `europe-west1` region:
     ```shell
-    gcloud iam service-accounts add-iam-policy-binding messenger-google-sa@YOU_PROJECT_ID.iam.gserviceaccount.com \
-    --role roles/iam.workloadIdentityUser \
-    --member "serviceAccount:YOUR_PROJECT_ID.svc.id.goog[default/messenger-service-account]"
+    ./start_gke_cluster.sh \
+        -r europe-west1 \
+        -n gke-europe-west1 \
+        -s geo-messenger-sa \
+        -a geo-messenger-k8-sa
     ```
 
-    Replace the `YOUR_PROJECT_ID` placeholder with your Google project id.
-
-6. Annotate the Kubernetes service account with the email address of the IAM service account:
+4. Verify that both clusters are registered with an Anthos fleet:
     ```shell
-    kubectl annotate serviceaccount messenger-service-account \
-    --namespace default \
-    iam.gke.io/gcp-service-account=messenger-google-sa@YOUR_PROJECT_ID.iam.gserviceaccount.com
+    gcloud container fleet memberships list
     ```
 
-    Replace the `YOUR_PROJECT_ID` placeholder with your Google project id.
-
-## Start Application in GKE
-
-Start an instance of Spring Cloud Config Server, Attachments and Messenger in the GKE environment.
-
-1. Navigate to the `gcloud` directory of the project:
+5. Enable [Multi Cluster Ingress](https://cloud.google.com/kubernetes-engine/docs/concepts/multi-cluster-ingress) and select `gke-us-east4` as the config cluster:
     ```shell
-    cd PROJECT_ROO_DIR/gcloud
-    ```
-2. Start the application instances in GKE using the script below:
-    ```shell
-    ./start_in_gke.sh -r us-east4 -p YOUR_PROJECT_ID
+    gcloud container fleet ingress enable \
+        --config-membership=gke-us-east4
     ```
 
-    Replace the `YOUR_PROJECT_ID` placeholder with your Google project id.
+Now, you can open the [Anthos](https://cloud.google.com/anthos) dashboard to observe the clusters and Ingress.
 
-3. Wait while all the deployments are ready:
+## Start Application
+
+Start an instance of Spring Cloud Config Server, Attachments and Messenger in every GKE cluster.
+
+1. Make sure you're in the `gcloud/gke` directory of the project:
     ```shell
-    kubectl get deployments
-
-    # Also, you can follow the logs of a spefic deployment for more details:
-    kubectl logs -f deployment/config-server-gke
+    cd PROJECT_ROO_DIR/gcloud/gke
     ```
 
-4. Verify the pods are running:
+2. Start the application in the `gke-us-east4` cluster:
     ```shell
-    kubectl get pods
+    ./start_gke_app.sh \
+        -r us-east4 \
+        -n gke-us-east4 \
+        -a geo-messenger-k8-sa
     ```
 
-5. Verify the Services are running as well:
+    the arguments are:
+    * `-r` - the name of the cluster's cloud region
+    * `-n` - the cluster name
+    * `-a` - the name of the Kubernetes service account
+
+3. Start the app in the `gke-europe-west1` cluster:
     ```shell
-    kubectl get services
+    ./start_gke_app.sh \
+        -r europe-west1 \
+        -n gke-europe-west1 \
+        -a geo-messenger-k8-sa
     ```
 
-6. Access the Config Server, Attachments and Messenger microservices via the `EXTERNAL_IP` of corresponding K8 Services:
+It will take several minutes to deploy the application. You can monitor the deployment status using the following commands or [GKE Dashboard](https://cloud.google.com/kubernetes-engine).
+
+1. First, select one of the clusters:
     ```shell
-    curl http://CONFIG_SERVER_SERVICE_EXTERNAL_IP:8888/messenger/prod
-    curl http://ATTACHMENTS_SERVICE_EXTERNAL_IP/ping 
-    curl http://MESSENGER_SERVICE_EXTERNAL_IP/login
+    kubectl config use-context gke-us-east4
+    # or
+    kubectl config use-context gke-europe-west1
+    ```
+
+2. Get the deployment status:
+    ```shell
+    kubectl get deployments --namespace geo-messenger
+
+    # Or, view logs of a particular microservice:
+    kubectl logs -f deployment/config-server-gke --namespace geo-messenger
+    kubectl logs -f deployment/attachments-gke --namespace geo-messenger
+    kubectl logs -f deployment/messenger-gke --namespace geo-messenger
+    ```
+
+3. Once the deployments are ready, check the pods and services status: 
+    ```shell
+    kubectl get pods --namespace geo-messenger
+    kubectl get services --namespace geo-messenger
+    ```
+
+
+Lastly, you can connect a Messenger instance directly from any cloud region.
+
+1. First, select one of the clusters:
+    ```shell
+    kubectl config use-context gke-us-east4
+    # or
+    kubectl config use-context gke-europe-west1
+    ```
+
+2. Find the EXTERNAL_IP of the respective Kubernetes service:
+    ```shell
+    kubectl get service messenger-service --namespace geo-messenger
+    ```
+
+3. Open the address in the browser:
+    ```shell
+    http://EXTERNAL_IP/
+    ```
+
+    use the `test@gmail.com\password` credentials to log in.
+
+## Deploy Multi Cluster Ingress and Service
+
+With the application running across two distant GKE clusters, you can proceed with the configuration of the multi cluster Ingress and Service. 
+The configuration has to happen via the `gke-us-east4` cluster that was selected as a config cluster earlier.
+
+1. Make sure you're in the `gcloud/gke` directory of the project:
+    ```shell
+    cd PROJECT_ROO_DIR/gcloud/gke
+    ```
+
+2. Set the context to the config cluster:
+    ```shell
+    kubectl config use-context gke-us-east4
+    ```
+
+3. Start the mutli cluster service:
+    ```shell
+    kubectl apply -f multi-cluster-service.yaml
+    ```
+
+4. Verify the service is started:
+    ```shell
+    kubectl get mcs --namespace geo-messenger
+    ```
+
+5. This multi cluster service creates a derived headless Service in every cluster that matches Pods with `app: messenger`:
+    ```shell
+    kubectl get service --namespace geo-messenger
+    ```
+
+Next, deploy a multi cluster Ingress:
+
+1. Deploy the Ingress to the config cluster:
+    ```shell
+    kubectl apply -f multi-cluster-ingress.yaml
+    ```
+
+2. Verify the deployment has succeeded:
+    ```shell
+    kubectl describe mci geo-messenger-ingress --namespace geo-messenger
+    ```
+
+3. Keep executing the previous command until you see the `VIP:` parameter set to a static IP address like this one below:
+    ```shell
+    VIP:        34.110.218.170
+    ```
+
+4. It can take 10+ minutes for the IP address to be fully ready for usage. Once the IP is ready, you'll see the following ouput for the following API call:
+    ```shell
+    curl http://VIP/login
     ```
