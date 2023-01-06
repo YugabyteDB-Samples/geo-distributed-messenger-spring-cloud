@@ -50,22 +50,14 @@ gcloud artifacts repositories create geo-distributed-messenger-repo \
         --substitutions _REGION=us-east4
     ```
 
-2. Build a Discover Service's image:
-    ```shell
-    cd ../discovery-server
-
-    gcloud builds submit --config cloudbuild.yaml \
-        --substitutions _REGION=us-east4
-    ```
-
-3. Build an Attachment's microservice image:
+2. Build an Attachment's microservice image:
     ```shell
     cd ../attachments
 
     gcloud builds submit --config cloudbuild.yaml \
         --substitutions _REGION=us-east4
     ```
-4. Finally, build the last image for the Messenger microservice:
+3. Finally, build the last image for the Messenger microservice:
     ```shell
     cd ../messenger
 
@@ -73,12 +65,12 @@ gcloud artifacts repositories create geo-distributed-messenger-repo \
         --substitutions _REGION=us-east4
     ```        
 
-## Start a GKE Cluster
+## Start GKE Cluster
 
 1. Create a Kubernetes cluster within the `us-east4` region:
     ```shell
     gcloud container clusters create-auto geo-distributed-messenger-gke \
-        --region us-east4
+        --scopes=gke-default,storage-full --region us-east4
     ```
 
 2. Verify you have access to the cluster by getting a list of running nodes:
@@ -86,9 +78,57 @@ gcloud artifacts repositories create geo-distributed-messenger-repo \
     kubectl get nodes
     ```
 
-## Start Config and Discovery Servers in GKE
+## Configure Workload Identity
 
-First, start two Spring Cloud components (Config and Discovery servers) that are used by the application logic.
+The Attachments microservice stores pictures in Google Cloud Storage. An Attachments pod must be granted the Cloud Storage access permissions. This can be done by configuring the [workload identity](https://cloud.google.com/kubernetes-engine/docs/how-to/workload-identity)
+
+1. Get credentials for the cluster:
+    ```shell
+    gcloud container clusters get-credentials geo-distributed-messenger-gke --region us-east4
+    ```
+
+2. Create a Kubernetes service account:
+    ```shell
+    kubectl create serviceaccount messenger-service-account --namespace default
+    ```
+
+3. Create an IAM service account:
+    ```shell
+    gcloud iam service-accounts create messenger-google-sa --project=YOUR_PROJECT_ID
+    ```
+
+    Replace the `YOUR_PROJECT_ID` placeholder with your Google project id.
+
+4. Grant the full access role to Cloud Storage to the IAM account:
+    ```shell
+    gcloud projects add-iam-policy-binding YOUR_PROJECT_ID \
+    --member "serviceAccount:messenger-google-sa@YOU_PROJECT_ID.iam.gserviceaccount.com" \
+    --role "roles/storage.admin"
+    ```
+
+    Replace the `YOUR_PROJECT_ID` placeholder with your Google project id.
+
+5. Allow the Kubernetes service account to impersonate the IAM service account by adding an IAM policy binding between the two service accounts:
+    ```shell
+    gcloud iam service-accounts add-iam-policy-binding messenger-google-sa@YOU_PROJECT_ID.iam.gserviceaccount.com \
+    --role roles/iam.workloadIdentityUser \
+    --member "serviceAccount:YOUR_PROJECT_ID.svc.id.goog[default/messenger-service-account]"
+    ```
+
+    Replace the `YOUR_PROJECT_ID` placeholder with your Google project id.
+
+6. Annotate the Kubernetes service account with the email address of the IAM service account:
+    ```shell
+    kubectl annotate serviceaccount messenger-service-account \
+    --namespace default \
+    iam.gke.io/gcp-service-account=messenger-google-sa@YOUR_PROJECT_ID.iam.gserviceaccount.com
+    ```
+
+    Replace the `YOUR_PROJECT_ID` placeholder with your Google project id.
+
+## Start Application in GKE
+
+Start an instance of Spring Cloud Config Server, Attachments and Messenger in the GKE environment.
 
 1. Navigate to the `gcloud` directory of the project:
     ```shell
@@ -96,7 +136,7 @@ First, start two Spring Cloud components (Config and Discovery servers) that are
     ```
 2. Start the application instances in GKE using the script below:
     ```shell
-    ./start_spring_cloud_servers_in_gke.sh -r us-east4 -p YOUR_PROJECT_ID
+    ./start_in_gke.sh -r us-east4 -p YOUR_PROJECT_ID
     ```
 
     Replace the `YOUR_PROJECT_ID` placeholder with your Google project id.
@@ -119,53 +159,9 @@ First, start two Spring Cloud components (Config and Discovery servers) that are
     kubectl get services
     ```
 
-6. Access Discovery and Config servers using the `EXTERNAL_IP` of corresponding Services:
+6. Access the Config Server, Attachments and Messenger microservices via the `EXTERNAL_IP` of corresponding K8 Services:
     ```shell
     curl http://CONFIG_SERVER_SERVICE_EXTERNAL_IP:8888/messenger/prod
-    curl http://DISCOVERY_SERVER_SERVICE_EXTERNAL_IP:8761/
-    ```
-
-## Start Attachments and Messenger Services in GKE
-
-Next, start an instance of the Attachments and Messenger microservices.
-
-1. Ensure that you're in the `gcloud` directory of the project:
-    ```shell
-    cd PROJECT_ROO_DIR/gcloud
-    ```
-2. Create the `secret-gke.yaml` file using the command below:
-    ```shell
-    cp ../messenger/secret-gke-template.yaml ../messenger/secret-gke.yaml
-    ```
-3. Provide YugabyteDB connectivity settings in the created `secret-gke.yaml` file.
-
-4. Start the microservices in GKE using the script below:
-    ```shell
-    ./start_app_in_gke.sh -r us-east4 -p YOUR_PROJECT_ID
-    ```
-
-    Replace the `YOUR_PROJECT_ID` placeholder with your Google project id.
-
-5. Wait while all the deployments are ready:
-    ```shell
-    kubectl get deployments
-
-    # Also, you can follow the logs of a spefic deployment for more details:
-    kubectl logs -f deployment/attachments-gke
-    ```
-
-6. Verify the pods are running:
-    ```shell
-    kubectl get pods
-    ```
-
-7. Verify the Services are running as well:
-    ```shell
-    kubectl get services
-    ```
-
-8. Access the Attachments and Messenger microservices using the `EXTERNAL_IP` of the corresponding K8 Services:
-    ```shell
     curl http://ATTACHMENTS_SERVICE_EXTERNAL_IP/ping 
     curl http://MESSENGER_SERVICE_EXTERNAL_IP/login
     ```

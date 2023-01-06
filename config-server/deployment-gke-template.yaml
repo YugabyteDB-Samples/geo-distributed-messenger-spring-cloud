@@ -12,6 +12,9 @@ spec:
       labels:
         app: config-server
     spec:
+      serviceAccountName: messenger-service-account
+      nodeSelector:
+        iam.gke.io/gke-metadata-server-enabled: "true"
       containers:
         - name: config-server-gke
           image: _REGION-docker.pkg.dev/_PROJECT_ID/geo-distributed-messenger-repo/config-server-gke:latest

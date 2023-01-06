@@ -12,6 +12,9 @@ spec:
       labels:
         app: attachments
     spec:
+      serviceAccountName: messenger-service-account
+      nodeSelector:
+        iam.gke.io/gke-metadata-server-enabled: "true"
       containers:
         - name: attachments-gke
           image: _REGION-docker.pkg.dev/_PROJECT_ID/geo-distributed-messenger-repo/attachments-gke:latest
@@ -25,9 +28,5 @@ spec:
               value: "config-server-service" # the name of the corresponding K8 Service
             - name: CONFIG_SERVER_PORT
               value: "8888"
-            - name: DISCOVERY_SERVER_HOST
-              value: "discovery-server-service" # the name of the corresponding K8 Service
-            - name: DISCOVERY_SERVER_PORT
-              value: "8761"
             - name: PROJECT_ID
               value: "_PROJECT_ID"

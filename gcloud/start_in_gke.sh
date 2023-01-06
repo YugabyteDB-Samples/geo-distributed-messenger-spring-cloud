@@ -10,26 +10,35 @@ done
 
 # Starting Config Server in GKE
 
-echo "Starting a Config Server pod in $region..."
+echo "Starting Config Server in $region..."
 
 cd ../config-server
 cat deployment-gke-template.yaml | sed "s/_REGION/$region/g" | sed "s/_PROJECT_ID/$project_id/g" > deployment-gke.yaml
 kubectl apply -f deployment-gke.yaml
 
-echo "Starting a Config Server service in $region..."
-
 kubectl apply -f service-gke.yaml
 kubectl get service config-server-service
 
-# Starting Discovery Server in GKE
+# Starting the Attachments microservice in GKE
 
-echo "Starting a Discovery Server pod in $region..."
+echo "Starting Attachments in $region..."
 
-cd ../discovery-server
+cd ../attachments
 cat deployment-gke-template.yaml | sed "s/_REGION/$region/g" | sed "s/_PROJECT_ID/$project_id/g" > deployment-gke.yaml
 kubectl apply -f deployment-gke.yaml
 
-echo "Starting a Config Server service in $region..."
+kubectl apply -f service-gke.yaml
+kubectl get service attachments-service
+
+# Starting the Messenger microservice in GKE
+
+echo "Starting Messenger in $region..."
+
+cd ../messenger
+kubectl apply -f secret-gke.yaml
+
+cat deployment-gke-template.yaml | sed "s/_REGION/$region/g" | sed "s/_PROJECT_ID/$project_id/g" > deployment-gke.yaml
+kubectl apply -f deployment-gke.yaml
 
 kubectl apply -f service-gke.yaml
-kubectl get service discovery-server-service
+kubectl get service messenger-service

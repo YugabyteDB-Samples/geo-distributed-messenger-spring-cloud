@@ -1,5 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <!-- Project from https://start.vaadin.com/project/f5f9e3a7-303a-414e-b267-51b7c124d246 -->
     <groupId>com.yugabyte.app.messenger</groupId>
@@ -24,7 +26,8 @@
     </parent>
 
     <repositories>
-        <!-- The order of definitions matters. Explicitly defining central here to make sure it has the highest priority. -->
+        <!-- The order of definitions matters. Explicitly defining central here to make sure it has
+        the highest priority. -->
 
         <!-- Main Maven repository -->
         <repository>
@@ -51,7 +54,8 @@
     </repositories>
 
     <pluginRepositories>
-        <!-- The order of definitions matters. Explicitly defining central here to make sure it has the highest priority. -->
+        <!-- The order of definitions matters. Explicitly defining central here to make sure it has
+        the highest priority. -->
         <pluginRepository>
             <id>central</id>
             <url>https://repo.maven.apache.org/maven2</url>
@@ -191,9 +195,11 @@
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-maven-plugin</artifactId>
                 <!-- Clean build and startup time for Vaadin apps sometimes may exceed
-                     the default Spring Boot's 30sec timeout.  -->
+                     the
+                default Spring Boot's 30sec timeout.  -->
                 <configuration>
-                    <jvmArguments>-Xdebug -Xrunjdwp:transport=dt_socket,server=y,suspend=n,address=5513</jvmArguments>
+                    <jvmArguments>-Xdebug
+                        -Xrunjdwp:transport=dt_socket,server=y,suspend=n,address=5513</jvmArguments>
                     <wait>500</wait>
                     <maxAttempts>240</maxAttempts>
                 </configuration>
@@ -201,8 +207,9 @@
 
             <!--
                 Take care of synchronizing java dependencies and imports in
-                package.json and main.js files.
-                It also creates webpack.config.js if not exists yet.
+            package.json and main.js files.
+                It also creates webpack.config.js if not
+            exists yet.
             -->
             <plugin>
                 <groupId>com.vaadin</groupId>
@@ -235,6 +242,34 @@
             <id>prod</id>
             <properties>
                 <spring.profiles.active>prod</spring.profiles.active>
+            </properties>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>com.vaadin</groupId>
+                        <artifactId>vaadin-maven-plugin</artifactId>
+                        <version>${vaadin.version}</version>
+                        <executions>
+                            <execution>
+                                <goals>
+                                    <goal>build-frontend</goal>
+                                </goals>
+                                <phase>compile</phase>
+                            </execution>
+                        </executions>
+                        <configuration>
+                            <productionMode>true</productionMode>
+                        </configuration>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+
+        <profile>
+            <!-- Production mode for GKE is activated using -Pprod-k8 -->
+            <id>prod-k8</id>
+            <properties>
+                <spring.profiles.active>prod-k8</spring.profiles.active>
             </properties>
             <build>
                 <plugins>
