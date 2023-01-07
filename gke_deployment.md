@@ -199,7 +199,6 @@ It will take several minutes to deploy the application. You can monitor the depl
     kubectl get services --namespace geo-messenger
     ```
 
-
 Lastly, you can connect a Messenger instance directly from any cloud region.
 
 1. First, select one of the clusters:
@@ -221,54 +220,46 @@ Lastly, you can connect a Messenger instance directly from any cloud region.
 
     use the `test@gmail.com\password` credentials to log in.
 
-## Deploy Multi Cluster Ingress and Service
+## Deploy Multi Cluster Ingress
 
-With the application running across two distant GKE clusters, you can proceed with the configuration of the multi cluster Ingress and Service. 
-The configuration has to happen via the `gke-us-east4` cluster that was selected as a config cluster earlier.
+With the application running across two distant GKE clusters, you can proceed with the [configuration of the multi cluster Ingress](https://cloud.google.com/kubernetes-engine/docs/how-to/multi-cluster-ingress) and Service. The Ingress needs to be configured via the config cluster - the `gke-us-east4` one.
 
 1. Make sure you're in the `gcloud/gke` directory of the project:
     ```shell
     cd PROJECT_ROO_DIR/gcloud/gke
     ```
-
-2. Set the context to the config cluster:
+2. Deploy multi cluster service and ingress:
     ```shell
-    kubectl config use-context gke-us-east4
+    ./deploy_multi_cluster_ingress.sh -n gke-us-east4
     ```
 
-3. Start the mutli cluster service:
-    ```shell
-    kubectl apply -f multi-cluster-service.yaml
-    ```
+    where `-n` is the name of the config cluster.
 
-4. Verify the service is started:
-    ```shell
-    kubectl get mcs --namespace geo-messenger
-    ```
-
-5. This multi cluster service creates a derived headless Service in every cluster that matches Pods with `app: messenger`:
+3. The multi cluster service creates a derived headless Service in every cluster that matches pods with `app: messenger`:
     ```shell
     kubectl get service --namespace geo-messenger
+
+    # the name of the service should look as follows
+    mci-geo-messenger-mcs-svc-d3tnpay37ltoop2o
     ```
 
-Next, deploy a multi cluster Ingress:
-
-1. Deploy the Ingress to the config cluster:
+4. Verify the deployment has succeeded:
     ```shell
-    kubectl apply -f multi-cluster-ingress.yaml
+    kubectl describe mci geo-messenger-ingress --namespace geo-messenger | grep VIP
     ```
 
-2. Verify the deployment has succeeded:
-    ```shell
-    kubectl describe mci geo-messenger-ingress --namespace geo-messenger
-    ```
-
-3. Keep executing the previous command until you see the `VIP:` parameter set to a static IP address like this one below:
+5. Keep executing the previous command until you see the `VIP:` parameter set to a static IP address like this one below:
     ```shell
     VIP:        34.110.218.170
     ```
 
-4. It can take 10+ minutes for the IP address to be fully ready for usage. Once the IP is ready, you'll see the following ouput for the following API call:
+6. It can take 10+ minutes for the IP address to be ready for usage. You can see various errors while the IP is being configured. Keep checking the IP readiness using this call:
     ```shell
     curl http://VIP/login
+
+    # once the IP is ready, you'll get an HTML page that starts with:
+    <!doctype html><html lang="en"><head><script initial="">window.Vaadin = window.Vaadin || {};window.Vaadin.TypeScript= {};
     ```
+
+Finally, open the VIP address in the browser!
+http://VIP/

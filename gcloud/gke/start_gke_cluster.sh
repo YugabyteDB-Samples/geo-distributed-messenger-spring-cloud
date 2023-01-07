@@ -30,6 +30,7 @@ gcloud container clusters create $cluster_name \
     --workload-pool=$project_id.svc.id.goog \
     --release-channel=stable \
     --num-nodes=1 \
+    --disk-size=30GB \ 
     --project=$project_id
 
 echo "Cluster $cluster_name has been created in $region"
@@ -76,5 +77,3 @@ gcloud container fleet memberships register $cluster_name \
 echo "The cluster $cluster_name has been registered with the fleet"
 
 gcloud container fleet memberships list --project=$project_id
-
-
