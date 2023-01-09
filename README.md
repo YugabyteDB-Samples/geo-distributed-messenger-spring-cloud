@@ -22,4 +22,4 @@ The application can be deployed in several environments.
 | [Docker Compose](docker_compose_deployment.md)     | No need to install anything apart from Docker and Docker Compose. Deploy the entire app in Docker with a single Docker Compose command.|
 | [Gitpod](gitpod_deployment.md)             | Run the app in your personal Gitpod environment. Requires to fork this repository. |
 | [Geo-Distributed Deployment in Google Kubernetes Engine](gke_deployment.md)       | Deploy a geo-distributed version of the app across multiple Kubernetes clusters in Google Cloud.|
-| [Geo-Distributed Deployment on Google Cloud virtual machines](gcloud_deployment.md)       | Deploy a geo-distributed version of the app across multiple regions using VMs of Google Cloud.|
+| [Geo-Distributed Deployment on Google Cloud Virtual Machines](gcloud_deployment.md)       | Deploy a geo-distributed version of the app across multiple regions using VMs of Google Cloud.|
