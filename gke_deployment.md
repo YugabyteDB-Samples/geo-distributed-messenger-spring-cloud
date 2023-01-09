@@ -1,21 +1,23 @@
-# Google Kubernetes Engine Deployment
+# Geo-Distributed Deployment in Google Kubernetes Engine
 
 The instruction explains how to deploy the applicaion in Google Kubernetes Engine.
 
 <!-- vscode-markdown-toc -->
 
-- [Geo-Distributed Deployment in Google Cloud](#geo-distributed-deployment-in-google-cloud)
+- [Geo-Distributed Deployment in Google Kubernetes Engine](#geo-distributed-deployment-in-google-kubernetes-engine)
   - [Prerequisite](#prerequisite)
   - [Architecture](#architecture)
-  - [Create Google Project](#create-google-project)
-  - [Create Custom Network](#create-custom-network)
+  - [Create Google Cloud Project](#create-google-cloud-project)
   - [Enable Google Cloud Storage](#enable-google-cloud-storage)
-  - [Create Instance Templates](#create-instance-templates)
-  - [Start Application Instances](#start-application-instances)
-  - [Configure Global External Load Balancer](#configure-global-external-load-balancer)
-  - [Test Load Balancer](#test-load-balancer)
-  - [Play With Application](#play-with-application)
-  - [Test Fault Tolerance](#test-fault-tolerance)
+  - [Create Artifact Registry Repository](#create-artifact-registry-repository)
+  - [Prepare App Images](#prepare-app-images)
+  - [Enable Anthos Pricing](#enable-anthos-pricing)
+  - [Create Service Account](#create-service-account)
+  - [Start GKE Cluster](#start-gke-clusters)
+  - [Start Application](#start-application)
+  - [Deploy Multi Cluster Ingress](#deploy-multi-cluster-ingress)
+  - [Playing with the App](#playing-with-the-app)
+  - [Testing Fault Tolerance](#testing-fault-tolerance)
   
 <!-- vscode-markdown-toc-config
     numbering=false
@@ -27,6 +29,10 @@ The instruction explains how to deploy the applicaion in Google Kubernetes Engin
 
 * [Google Cloud Platform](http://console.cloud.google.com/) account
 * [YugabyteDB Managed](http://cloud.yugabyte.com) cluster in Google Cloud Platform
+
+## Architecture 
+
+TBD
 
 ## Create Google Cloud Project
 
@@ -307,8 +313,7 @@ http://VIP/
 
 5. Open the "Monitoring" tab and confirm the load balancer forwarded app requests to a GKE cluster that is closest to your physical location (in my case, that's `gke-us-east4`).
 
-TBD picture
-
+![us-only-traffic](https://user-images.githubusercontent.com/1537233/211407459-83372922-3cd1-41a2-95ac-819f6c823989.png)
 
 ## Testing Fault Tolerance
 
@@ -335,7 +340,8 @@ Next, emulate an outage in the region where the load balancer forwards your requ
 
 7. Open the "Monitoring" tab and confirm the load balancer now forwards your to another cluster region (in my case, that's `gke-europe-west1`).
 
-TBD
+![europe-traffic](https://user-images.githubusercontent.com/1537233/211407495-9e94bfed-7a33-486d-9d6d-d63049344d3d.png)
+
 
 Bring back the just deleted K8 deployment of the Messenger service to your original region. The load balancer will start serving your requests back there:
 
