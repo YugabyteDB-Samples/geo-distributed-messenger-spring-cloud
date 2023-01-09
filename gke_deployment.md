@@ -2,6 +2,27 @@
 
 The instruction explains how to deploy the applicaion in Google Kubernetes Engine.
 
+<!-- vscode-markdown-toc -->
+
+- [Geo-Distributed Deployment in Google Cloud](#geo-distributed-deployment-in-google-cloud)
+  - [Prerequisite](#prerequisite)
+  - [Architecture](#architecture)
+  - [Create Google Project](#create-google-project)
+  - [Create Custom Network](#create-custom-network)
+  - [Enable Google Cloud Storage](#enable-google-cloud-storage)
+  - [Create Instance Templates](#create-instance-templates)
+  - [Start Application Instances](#start-application-instances)
+  - [Configure Global External Load Balancer](#configure-global-external-load-balancer)
+  - [Test Load Balancer](#test-load-balancer)
+  - [Play With Application](#play-with-application)
+  - [Test Fault Tolerance](#test-fault-tolerance)
+  
+<!-- vscode-markdown-toc-config
+    numbering=false
+    autoSave=true
+    /vscode-markdown-toc-config -->
+<!-- /vscode-markdown-toc -->
+
 ## Prerequisite 
 
 * [Google Cloud Platform](http://console.cloud.google.com/) account
