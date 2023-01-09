@@ -378,3 +378,27 @@ Bring back the just deleted K8 deployment of the Messenger service to your origi
 
 3. Refresh the browser tab with the messenger app and at some point you'll be redirected to the authentication screen. That means that the Multi Cluster Ingress started forwarding your requests back to the GKE cluster closest to your physical location.
 
+## Clean Project
+
+1. Go to the `gcloud/gke` directory of the project:
+    ```shell
+    cd PROJECT_ROO_DIR/gcloud/gke
+    ```
+
+2. Run the script that removes GKE clusters for each used cloud region:
+    ```shell
+    ./clean_gke.sh \
+        -n gke-us-east4 \
+        -r us-east4
+    
+    ./clean_gke.sh \
+        -n gke-europe-west1 \
+        -r europe-west1
+    ```
+
+    the arguments are:
+    * `-r` - the name of the cluster's cloud region
+    * `-n` - the cluster name
+    
+3. Use Google Console (or respective gcloud commands) to stop the MCI load balancer (on the "Load Balancing" page), service account and project.
+
