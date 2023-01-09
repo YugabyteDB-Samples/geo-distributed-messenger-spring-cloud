@@ -2,6 +2,11 @@
 
 The instruction explains how to deploy the applicaion in Google Kubernetes Engine.
 
+## Prerequisite 
+
+* [Google Cloud Platform](http://console.cloud.google.com/) account
+* [YugabyteDB Managed](http://cloud.yugabyte.com) cluster in Google Cloud Platform
+
 ## Create Google Cloud Project
 
 1. Log in under your account:
@@ -153,7 +158,11 @@ Start an instance of Spring Cloud Config Server, Attachments and Messenger in ev
     cd PROJECT_ROO_DIR/gcloud/gke
     ```
 
-2. Start the application in the `gke-us-east4` cluster:
+2. Create a copy of the `PROJECT_ROO_DIR/messenger/secret-gke-template.yaml` file named `PROJECT_ROO_DIR/messenger/secret-gke.yaml`
+
+3. Open the `PROJECT_ROO_DIR/messenger/secret-gke.yaml` and provide connectivity settings of your YugabyteDB Managed cluster. Don't forget to update the [IP Allow List](https://docs.yugabyte.com/preview/yugabyte-cloud/cloud-secure-clusters/add-connections/) on the YugabyteDB Managed side. For development and learning, you can use the range `0.0.0.0/0` to allow connections from any GKE pod.
+
+4. Start the application in the `gke-us-east4` cluster:
     ```shell
     ./start_gke_app.sh \
         -r us-east4 \
@@ -166,7 +175,7 @@ Start an instance of Spring Cloud Config Server, Attachments and Messenger in ev
     * `-n` - the cluster name
     * `-a` - the name of the Kubernetes service account
 
-3. Start the app in the `gke-europe-west1` cluster:
+5. Start the app in the `gke-europe-west1` cluster:
     ```shell
     ./start_gke_app.sh \
         -r europe-west1 \
@@ -222,7 +231,7 @@ Lastly, you can connect a Messenger instance directly from any cloud region.
 
 ## Deploy Multi Cluster Ingress
 
-With the application running across two distant GKE clusters, you can proceed with the [configuration of the multi cluster Ingress](https://cloud.google.com/kubernetes-engine/docs/how-to/multi-cluster-ingress) and Service. The Ingress needs to be configured via the config cluster - the `gke-us-east4` one.
+With the application running across two distant GKE clusters, you can proceed with the [configuration of the Multi Cluster Ingress](https://cloud.google.com/kubernetes-engine/docs/how-to/multi-cluster-ingress) and Service. The Ingress needs to be configured via the config cluster - the `gke-us-east4` one.
 
 1. Make sure you're in the `gcloud/gke` directory of the project:
     ```shell
@@ -235,7 +244,7 @@ With the application running across two distant GKE clusters, you can proceed wi
 
     where `-n` is the name of the config cluster.
 
-3. The multi cluster service creates a derived headless Service in every cluster that matches pods with `app: messenger`:
+3. The multi cluster service creates a derived headless Service (might take several minutes) in every cluster that matches pods with `app: messenger`:
     ```shell
     kubectl get service --namespace geo-messenger
 
@@ -263,3 +272,71 @@ With the application running across two distant GKE clusters, you can proceed wi
 
 Finally, open the VIP address in the browser!
 http://VIP/
+
+
+## Playing With the App
+
+1. Open the app in the browser using the VIP address of the Multi Cluster Ingress.
+
+2. Log in using `test@gmail.com\password` account
+
+3. Send a few messages and pictures in any channel.
+
+4. Go to the GCP "Load Balancing" page and select the load balancer which name starts with `mci-`
+
+5. Open the "Monitoring" tab and confirm the load balancer forwarded app requests to a GKE cluster that is closest to your physical location (in my case, that's `gke-us-east4`).
+
+TBD picture
+
+
+## Testing Fault Tolerance
+
+Next, emulate an outage in the region where the load balancer forwards your requests to. You can do that by stopping the Messenger pod from the region. That pod receives the traffic from the Multi Cluster Ingress the first, thus, if the load balancer can't connect to the pod then it will start routing requests to another cloud region.
+
+1. Select the cluster where your traffic gets redirected by the Multi Cluster Ingress:
+    ```shell
+    kubectl config use-context gke-us-east4 
+    # or
+    kubectl config use-context gke-europe-west1
+    ```
+2. Delete the Messenger's microservice deployment and respective pod:
+    ```shell
+    kubectl delete deployments messenger-gke -n geo-messenger
+    ```
+
+3. Refresh the messenger's tab in the browser (the one that uses the VIP address)
+
+4. You should be asked to aunthenticate again (`test@gmail.com\password` account) because the load balancer started forwarding your requests to another GKE cluster.
+
+5. Send a few messages and pictures in any channel.
+
+6. Go back the GCP "Load Balancing" page and select the load balancer which name starts with `mci-`
+
+7. Open the "Monitoring" tab and confirm the load balancer now forwards your to another cluster region (in my case, that's `gke-europe-west1`).
+
+TBD
+
+Bring back the just deleted K8 deployment of the Messenger service to your original region. The load balancer will start serving your requests back there:
+
+1. Make sure you're in the `gcloud/gke` directory of the project:
+    ```shell
+    cd PROJECT_ROO_DIR/gcloud/gke
+    ```
+
+2. Start the application in the `gke-us-east4` cluster:
+    ```shell
+    ./start_gke_app.sh \
+        -r us-east4 \
+        -n gke-us-east4 \
+        -a geo-messenger-k8-sa
+
+
+    # If originally your traffic was forwarded to the `gke-europe-west1` region, then use this command instead:
+    ./start_gke_app.sh \
+        -r europe-west1 \
+        -n gke-europe-west1 \
+        -a geo-messenger-k8-sa
+    ```
+
+3. Refresh the browser tap with the messenger app and at some point you'll be redirected to the authentication screen. That means that the Multi Cluster Ingress started forwarding your requests back to the GKE cluster closest to your physical location.
+

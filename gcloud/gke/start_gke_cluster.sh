@@ -29,10 +29,8 @@ gcloud container clusters create $cluster_name \
     --enable-ip-alias \
     --workload-pool=$project_id.svc.id.goog \
     --release-channel=stable \
-    --num-nodes=1 \
-    --disk-size=30GB \ 
     --project=$project_id
-
+    
 echo "Cluster $cluster_name has been created in $region"
 gcloud container clusters list
 
