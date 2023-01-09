@@ -36,6 +36,8 @@ The application is designed to function across multiple cloud regions. Check the
 
 As the diagram shows, you can deploy multiple instances of the Messaging, Attachments, Config services in several Googke Kubernetes Engine (GKE) clusters. The clusters can be placed in different distant regions - as `Region A` and `Region B`.
 
+![gke_deployment_architecture](https://user-images.githubusercontent.com/1537233/211410498-cf9b5560-7280-4ddd-bee2-0facba81d583.png)
+
 YugabyteDB is deployed in a multi-region mode in the regions of choice. Google Cloud Storage runs across multiple locations as well and used to store pictures that the users share via the messenger.
 
 The users connects to the app using the IP address of the Multi Cluster Ingress. The Ingress relies on the Global Cloud Load Balancer that forwards the user requets to a GKE cluster that is closest to the user.
