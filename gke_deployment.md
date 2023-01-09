@@ -32,7 +32,13 @@ The instruction explains how to deploy the applicaion in Google Kubernetes Engin
 
 ## Architecture 
 
-TBD
+The application is designed to function across multiple cloud regions. Check the [following article](https://dzone.com/articles/geo-what-a-quick-introduction-to-geo-distributed-a) for details on why this matters.
+
+As the diagram shows, you can deploy multiple instances of the Messaging, Attachments, Config services in several Googke Kubernetes Engine (GKE) clusters. The clusters can be placed in different distant regions - as `Region A` and `Region B`.
+
+YugabyteDB is deployed in a multi-region mode in the regions of choice. Google Cloud Storage runs across multiple locations as well and used to store pictures that the users share via the messenger.
+
+The users connects to the app using the IP address of the Multi Cluster Ingress. The Ingress relies on the Global Cloud Load Balancer that forwards the user requets to a GKE cluster that is closest to the user.
 
 ## Create Google Cloud Project
 
@@ -368,5 +374,5 @@ Bring back the just deleted K8 deployment of the Messenger service to your origi
         -a geo-messenger-k8-sa
     ```
 
-3. Refresh the browser tap with the messenger app and at some point you'll be redirected to the authentication screen. That means that the Multi Cluster Ingress started forwarding your requests back to the GKE cluster closest to your physical location.
+3. Refresh the browser tab with the messenger app and at some point you'll be redirected to the authentication screen. That means that the Multi Cluster Ingress started forwarding your requests back to the GKE cluster closest to your physical location.
 
