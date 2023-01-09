@@ -1,13 +1,14 @@
-FROM azul/zulu-openjdk:17
+FROM maven:3.8.3-openjdk-17
 
-RUN mkdir -p /opt/messenger/discovery-server
-WORKDIR /opt/messenger/discovery-server
+ARG build_type=dev
+
+RUN mkdir -p /opt/messenger/config-server
+WORKDIR /opt/messenger/config-server
 
 COPY pom.xml mvnw ./
 COPY .mvn ./.mvn
-
-RUN ./mvnw dependency:resolve
-
 COPY src ./src
 
-CMD ["./mvnw", "spring-boot:run"]
+RUN mvn clean package -P$build_type -DskipTests
+
+CMD ["java", "-jar", "/opt/messenger/config-server/target/config-server-1.0.0-SNAPSHOT.jar"]

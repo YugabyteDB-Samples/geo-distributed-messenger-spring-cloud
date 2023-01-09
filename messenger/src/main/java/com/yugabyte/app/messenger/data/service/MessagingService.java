@@ -13,11 +13,9 @@ import com.yugabyte.app.messenger.data.entity.GeoId;
 import com.yugabyte.app.messenger.data.entity.Message;
 import com.yugabyte.app.messenger.data.entity.Profile;
 import com.yugabyte.app.messenger.data.entity.Workspace;
-import com.yugabyte.app.messenger.data.entity.WorkspaceProfile;
 import com.yugabyte.app.messenger.data.repository.ChannelRepository;
 import com.yugabyte.app.messenger.data.repository.MessageRepository;
 import com.yugabyte.app.messenger.data.repository.SessionManagementRepository;
-import com.yugabyte.app.messenger.data.repository.WorkspaceProfileRepository;
 import com.yugabyte.app.messenger.data.repository.WorkspaceRepository;
 
 @Service
@@ -27,9 +25,6 @@ public class MessagingService {
 
     @Autowired
     private WorkspaceRepository workspaceRepository;
-
-    @Autowired
-    private WorkspaceProfileRepository workspaceProfileRepository;
 
     @Autowired
     private MessageRepository messageRepository;
@@ -42,22 +37,6 @@ public class MessagingService {
 
     public List<Channel> getWorkspaceChannels(Workspace workspace) {
         return channelsRepository.findByWorkspaceIdAndCountryCode(workspace.getId(), workspace.getCountryCode());
-    }
-
-    public List<Workspace> getUserWorkspaces(Profile user) {
-        List<WorkspaceProfile> wProfiles = workspaceProfileRepository.findByProfileId(user.getId());
-
-        List<GeoId> workspaceIds = new ArrayList<>(wProfiles.size());
-
-        for (WorkspaceProfile wProfile : wProfiles) {
-            GeoId id = new GeoId();
-            id.setId(wProfile.getWorkspaceId());
-            id.setCountryCode(wProfile.getWorkspaceCountry());
-
-            workspaceIds.add(id);
-        }
-
-        return workspaceRepository.findAllById(workspaceIds);
     }
 
     public List<Message> getMessages(Channel channel) {
