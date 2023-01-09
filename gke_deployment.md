@@ -249,12 +249,15 @@ Lastly, you can connect a Messenger instance directly from any cloud region.
     kubectl get service messenger-service --namespace geo-messenger
     ```
 
-3. Open the address in the browser:
+3. Open the address in the browser and send a few messeges and pictures:
     ```shell
     http://EXTERNAL_IP/
     ```
 
     use the `test@gmail.com\password` credentials to log in.
+
+![messenger_view](https://user-images.githubusercontent.com/1537233/211407944-c50ae7af-20d4-4f90-9753-d2379f9290df.png)
+
 
 ## Deploy Multi Cluster Ingress
 
