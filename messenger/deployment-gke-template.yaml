@@ -40,6 +40,12 @@ spec:
                 secretKeyRef:
                   name: database-endpoint
                   key: primary_endpoint
+            - name: DB_ADDITIONAL_ENDPOINTS
+              valueFrom:
+                secretKeyRef:
+                  name: database-endpoint
+                  key: additional_endpoints
+                  optional: true
             - name: DB_PORT
               valueFrom:
                 secretKeyRef:

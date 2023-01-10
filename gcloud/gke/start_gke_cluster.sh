@@ -28,6 +28,7 @@ gcloud container clusters create $cluster_name \
     --region=$region \
     --enable-ip-alias \
     --workload-pool=$project_id.svc.id.goog \
+    --max-nodes=1 \
     --release-channel=stable \
     --project=$project_id
     

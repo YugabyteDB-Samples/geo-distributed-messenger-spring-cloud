@@ -18,6 +18,7 @@ The instruction explains how to deploy the applicaion in Google Kubernetes Engin
   - [Deploy Multi Cluster Ingress](#deploy-multi-cluster-ingress)
   - [Playing with the App](#playing-with-the-app)
   - [Testing Fault Tolerance](#testing-fault-tolerance)
+  - [Clean Project](#clean-project)
   
 <!-- vscode-markdown-toc-config
     numbering=false
