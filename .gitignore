@@ -42,3 +42,4 @@ discovery-server/deployment-gke.yaml
 attachments/deployment-gke.yaml
 messenger/secret-gke.yaml
 messenger/deployment-gke.yaml
+commands.txt
