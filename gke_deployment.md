@@ -230,18 +230,18 @@ It will take several minutes to deploy the application. You can monitor the depl
 
 2. Get the deployment status:
     ```shell
-    kubectl get deployments --namespace geo-messenger
+    kubectl get deployments
 
     # Or, view logs of a particular microservice:
-    kubectl logs -f deployment/config-server-gke --namespace geo-messenger
-    kubectl logs -f deployment/attachments-gke --namespace geo-messenger
-    kubectl logs -f deployment/messenger-gke --namespace geo-messenger
+    kubectl logs -f deployment/config-server-gke
+    kubectl logs -f deployment/attachments-gke
+    kubectl logs -f deployment/messenger-gke
     ```
 
 3. Once the deployments are ready, check the pods and services status: 
     ```shell
-    kubectl get pods --namespace geo-messenger
-    kubectl get services --namespace geo-messenger
+    kubectl get pods
+    kubectl get services
     ```
 
 Lastly, you can connect a Messenger instance directly from any cloud region.
@@ -255,7 +255,7 @@ Lastly, you can connect a Messenger instance directly from any cloud region.
 
 2. Find the EXTERNAL_IP of the respective Kubernetes service:
     ```shell
-    kubectl get service messenger-service --namespace geo-messenger
+    kubectl get service messenger-service
     ```
 
 3. Open the address in the browser and send a few messeges and pictures:
@@ -285,7 +285,7 @@ With the application running across two distant GKE clusters, you can proceed wi
 
 3. The multi cluster service creates a derived headless Service (might take several minutes) in every cluster that matches pods with `app: messenger`:
     ```shell
-    kubectl get service --namespace geo-messenger
+    kubectl get service
 
     # the name of the service should look as follows
     mci-geo-messenger-mcs-svc-d3tnpay37ltoop2o
@@ -293,7 +293,7 @@ With the application running across two distant GKE clusters, you can proceed wi
 
 4. Verify the deployment has succeeded:
     ```shell
-    kubectl describe mci geo-messenger-ingress --namespace geo-messenger | grep VIP
+    kubectl describe mci geo-messenger-ingress | grep VIP
     ```
 
 5. Keep executing the previous command until you see the `VIP:` parameter set to a static IP address like this one below:

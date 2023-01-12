@@ -49,7 +49,7 @@ gcloud container clusters get-credentials $cluster_name \
     --project=$project_id
 
 kubectl config rename-context gke_${project_id}_${region}_${cluster_name} $cluster_name
-
+kubectl config set-context $cluster_name --namespace=$k8_namespace
 kubectl config use-context $cluster_name
 
 kubectl apply -f namespace.yaml
