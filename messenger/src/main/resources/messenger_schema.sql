@@ -2,7 +2,7 @@ CREATE SCHEMA Messenger;
 
 SET search_path TO Messenger;
 
-CREATE SEQUENCE profile_id_seq CACHE 2 INCREMENT BY 5;
+CREATE SEQUENCE profile_id_seq CACHE 100 INCREMENT BY 5;
 
 CREATE TABLE Profile (
     id integer NOT NULL DEFAULT nextval('profile_id_seq'),
@@ -16,7 +16,7 @@ CREATE TABLE Profile (
     UNIQUE (id)
 );
 
-CREATE SEQUENCE workspace_id_seq CACHE 2 INCREMENT BY 5;
+CREATE SEQUENCE workspace_id_seq CACHE 100 INCREMENT BY 5;
 
 CREATE TABLE Workspace (
     id integer NOT NULL DEFAULT nextval('workspace_id_seq'),
@@ -35,7 +35,7 @@ CREATE TABLE Workspace_Profile (
     FOREIGN KEY (profile_id) REFERENCES Profile (id)
 );
 
-CREATE SEQUENCE channel_id_seq CACHE 2 INCREMENT BY 5;
+CREATE SEQUENCE channel_id_seq CACHE 100 INCREMENT BY 5;
 
 CREATE TABLE Channel (
     id integer NOT NULL DEFAULT nextval('channel_id_seq'),
@@ -46,7 +46,7 @@ CREATE TABLE Channel (
     FOREIGN KEY (workspace_id, country_code) REFERENCES Workspace (id, country_code)
 );
 
-CREATE SEQUENCE message_id_seq CACHE 2 INCREMENT BY 15;
+CREATE SEQUENCE message_id_seq CACHE 100 INCREMENT BY 10;
 
 CREATE TABLE Message (
     id integer NOT NULL DEFAULT nextval('message_id_seq'),
