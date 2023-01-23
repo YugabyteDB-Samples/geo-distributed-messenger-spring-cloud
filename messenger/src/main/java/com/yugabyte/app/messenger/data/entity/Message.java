@@ -21,7 +21,7 @@ public class Message {
     @GenericGenerator(name = "message_id_pooled_lo_generator", strategy = "org.hibernate.id.enhanced.SequenceStyleGenerator", parameters = {
             @Parameter(name = "sequence_name", value = "message_id_seq"),
             @Parameter(name = "initial_value", value = "1"),
-            @Parameter(name = "increment_size", value = "15"),
+            @Parameter(name = "increment_size", value = "10"),
             @Parameter(name = "optimizer", value = "pooled-lo")
     })
     private Integer id;
