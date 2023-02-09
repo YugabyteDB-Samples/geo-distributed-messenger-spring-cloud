@@ -203,20 +203,23 @@ Start an instance of Spring Cloud Config Server, Attachments and Messenger in ev
     ./start_gke_app.sh \
         -r us-east4 \
         -n gke-us-east4 \
-        -a geo-messenger-k8-sa
+        -a geo-messenger-k8-sa \
+        -s "classpath:messenger_schema.sql"
     ```
 
     the arguments are:
     * `-r` - the name of the cluster's cloud region
     * `-n` - the cluster name
     * `-a` - the name of the Kubernetes service account
+    * `-s` - a database schema name. Set to `classpath:messenger_schema.sql` or `classpath:messenger_schema_partitioned.sql`.
 
 5. Start the app in the `gke-europe-west1` cluster:
     ```shell
     ./start_gke_app.sh \
         -r europe-west1 \
         -n gke-europe-west1 \
-        -a geo-messenger-k8-sa
+        -a geo-messenger-k8-sa \
+        -s "classpath:messenger_schema.sql"
     ```
 
 It will take several minutes to deploy the application. You can monitor the deployment status using the following commands or [GKE Dashboard](https://cloud.google.com/kubernetes-engine).

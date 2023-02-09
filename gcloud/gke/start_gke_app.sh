@@ -2,12 +2,13 @@
 
 set -e # stop executing the script if any command fails
 
-while getopts r:n:a: flag
+while getopts r:n:a:s: flag
 do
     case "${flag}" in
         r) region=${OPTARG};;
         n) cluster_name=${OPTARG};;
         a) k8_service_account=${OPTARG};;
+        s) db_schema=${OPTARG};;
     esac
 done
 
@@ -46,7 +47,7 @@ echo "Starting Messenger in $region..."
 cd ../messenger
 kubectl apply -f secret-gke.yaml
 
-cat deployment-gke-template.yaml | sed "s/_REGION/$region/g" | sed "s/_PROJECT_ID/$project_id/g" | sed "s/_SERVICE_ACCOUNT/$k8_service_account/g" > deployment-gke.yaml
+cat deployment-gke-template.yaml | sed "s/_REGION/$region/g" | sed "s/_PROJECT_ID/$project_id/g" | sed "s/_SERVICE_ACCOUNT/$k8_service_account/g" | sed "s/_DB_SCHEMA/$db_schema/g" > deployment-gke.yaml
 kubectl apply -f deployment-gke.yaml
 
 kubectl apply -f service-gke.yaml

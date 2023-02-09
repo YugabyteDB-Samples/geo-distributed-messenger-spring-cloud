@@ -63,3 +63,5 @@ spec:
                   key: password
             - name: DB_MODE
               value: "standard"
+            - name: DB_SCHEMA
+              value: _DB_SCHEMA
