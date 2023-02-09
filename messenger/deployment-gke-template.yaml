@@ -61,6 +61,11 @@ spec:
                 secretKeyRef:
                   name: database-endpoint
                   key: password
+            - name: DB_SSL_MODE
+              valueFrom:
+                secretKeyRef:
+                  name: database-endpoint
+                  key: ssl_mode
             - name: DB_MODE
               value: "standard"
             - name: DB_SCHEMA

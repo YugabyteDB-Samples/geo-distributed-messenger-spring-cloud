@@ -31,6 +31,7 @@ public class DynamicDataSource extends AbstractRoutingDataSource {
     private String yugabyteConnType;
     private String additionalEndpoints;
     private int maxPoolSize;
+    private String sslMode;
 
     private HashMap<Object, Object> dataSources = new HashMap<>();
 
@@ -41,6 +42,7 @@ public class DynamicDataSource extends AbstractRoutingDataSource {
             @Value("${dataSource.user}") String username,
             @Value("${dataSource.password}") String password,
             @Value("${dataSource.databaseName}") String databaseName,
+            @Value("${dataSource.sslMode:disable}") String sslMode,
             @Value("${spring.datasource.hikari.maximum-pool-size:5}") int maxPoolSize,
             @Value("${spring.datasource.hikari.schema:public}") String schemaName,
             @Value("${dataSource.additionalEndpoints:}") String additionalEndpoints,
@@ -51,6 +53,7 @@ public class DynamicDataSource extends AbstractRoutingDataSource {
         this.username = username;
         this.password = password;
         this.databaseName = databaseName;
+        this.sslMode = sslMode;
         this.maxPoolSize = maxPoolSize;
         this.schemaName = schemaName;
         this.yugabyteConnType = yugabyteConnType;
@@ -77,6 +80,11 @@ public class DynamicDataSource extends AbstractRoutingDataSource {
         dsProps.setProperty("databaseName", databaseName);
         dsProps.setProperty("user", username);
         dsProps.setProperty("password", password);
+
+        if (!sslMode.equals("disable")) {
+            dsProps.setProperty("ssl", "true");
+            dsProps.setProperty("sslMode", sslMode);
+        }
 
         if (!additionalEndpoints.isBlank())
             dsProps.setProperty("additionalEndpoints", additionalEndpoints);
