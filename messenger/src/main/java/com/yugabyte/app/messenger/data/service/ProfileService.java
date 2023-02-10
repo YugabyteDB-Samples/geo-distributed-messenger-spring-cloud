@@ -13,6 +13,7 @@ import java.util.Optional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.context.annotation.Bean;
+import org.springframework.data.domain.Example;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -60,32 +61,12 @@ public class ProfileService {
     }
 
     @Transactional
-    public Profile update(Profile entity) {
-        if (dataSource.isReplicaConnection())
-            sManagementRepository.switchToReadWriteTxMode();
-
-        if (entity.getId() != 0) {
-            GeoId geoId = new GeoId();
-            geoId.setId(entity.getId());
-            geoId.setCountryCode(entity.getCountryCode());
-
-            localCache.put(geoId, entity);
-        }
-
-        return repository.save(entity);
-    }
-
-    @Transactional
     public void delete(GeoId id) {
         if (dataSource.isReplicaConnection())
             sManagementRepository.switchToReadWriteTxMode();
 
         localCache.remove(id);
         repository.deleteById(id);
-    }
-
-    public Page<Profile> list(Pageable pageable) {
-        return repository.findAll(pageable);
     }
 
     public int count() {
