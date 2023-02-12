@@ -136,7 +136,7 @@ public class DataGenerator {
                         profilesInit.get(2).setEmail("test-asia@gmail.com");
                         profilesInit.get(2).setCountryCode("TWN");
 
-                        userRepository.saveAll(profilesInit);
+                        dgService.storeUsers(profilesInit);
 
                         // Generating messages
                         logger.info("Generating Messages");

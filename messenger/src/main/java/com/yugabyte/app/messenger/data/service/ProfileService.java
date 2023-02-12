@@ -14,6 +14,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.context.annotation.Bean;
 import org.springframework.data.domain.Example;
+import org.springframework.data.domain.ExampleMatcher;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -41,9 +42,13 @@ public class ProfileService {
     @Bean
     public CommandLineRunner preloadProfiles() {
         return args -> {
-            List<Profile> users = repository.findAll();
-            users.forEach(user -> localCache.put(new GeoId(user.getId(), user.getCountryCode()), user));
-            System.out.println("Preloaded all Profiles to local cache");
+            List<Profile> users = repository.findByIdGreaterThanEqual(1);
+
+            users.forEach(user -> {
+                localCache.put(new GeoId(user.getId(), user.getCountryCode()), user);
+            });
+
+            System.out.printf("Preloaded %d Profiles to local cache\n", users.size());
         };
     }
 
