@@ -15,6 +15,7 @@ import com.yugabyte.app.messenger.data.repository.MessageRepository;
 import com.yugabyte.app.messenger.data.repository.SessionManagementRepository;
 
 @Service
+@Transactional(readOnly = true)
 public class MessagingService {
     @Autowired
     private ChannelRepository channelsRepository;
