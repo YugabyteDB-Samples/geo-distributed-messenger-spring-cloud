@@ -6,9 +6,12 @@ import com.vaadin.flow.server.PWA;
 import com.vaadin.flow.theme.Theme;
 import com.vaadin.flow.theme.lumo.Lumo;
 
+import io.hypersistence.utils.spring.repository.BaseJpaRepositoryImpl;
+
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.web.servlet.support.SpringBootServletInitializer;
+import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 
 /**
  * The entry point of the Spring Boot application.
@@ -18,6 +21,7 @@ import org.springframework.boot.web.servlet.support.SpringBootServletInitializer
  *
  */
 @SpringBootApplication
+@EnableJpaRepositories(value = "com.yugabyte.app.messenger.data.repository", repositoryBaseClass = BaseJpaRepositoryImpl.class)
 @Theme(value = "geo-distributed-messenger", variant = Lumo.DARK)
 @PWA(name = "geo-distributed-messenger", shortName = "geo-distributed-messenger", offlineResources = {})
 @NpmPackage(value = "line-awesome", version = "1.3.0")
