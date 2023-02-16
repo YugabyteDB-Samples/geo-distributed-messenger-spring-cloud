@@ -45,9 +45,9 @@ public class DataGenerator {
                         int seed = 1024;
                         Random rand = new Random(seed);
 
-                        String usCode = "USA";
-                        String germanyCode = "DEU";
-                        String taiwanCode = "TWN";
+                        String usCode = "US";
+                        String germanyCode = "EU";
+                        String taiwanCode = "APAC";
 
                         List<String> countryCodes = Stream.of(usCode, germanyCode, taiwanCode).toList();
 
@@ -127,10 +127,10 @@ public class DataGenerator {
                         profilesInit.get(0).setEmail("test@gmail.com");
 
                         profilesInit.get(1).setEmail("test-europe@gmail.com");
-                        profilesInit.get(1).setCountryCode("DEU");
+                        profilesInit.get(1).setCountryCode("EU");
 
                         profilesInit.get(2).setEmail("test-asia@gmail.com");
-                        profilesInit.get(2).setCountryCode("TWN");
+                        profilesInit.get(2).setCountryCode("APAC");
 
                         dgService.storeUsers(profilesInit);
 

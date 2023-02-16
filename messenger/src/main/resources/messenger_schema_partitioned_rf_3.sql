@@ -37,13 +37,13 @@ CREATE TABLE Profile (
 PARTITION BY LIST (country_code);
 
 CREATE TABLE Profile_USA PARTITION OF Profile (id, full_name, email, phone, country_code, hashed_password, user_picture_url, PRIMARY KEY (id, country_code))
-FOR VALUES IN ('USA') TABLESPACE us_ts;
+FOR VALUES IN ('US') TABLESPACE us_ts;
 
 CREATE TABLE Profile_EU PARTITION OF Profile (id, full_name, email, phone, country_code, hashed_password, user_picture_url, PRIMARY KEY (id, country_code))
-FOR VALUES IN ('DEU') TABLESPACE europe_ts;
+FOR VALUES IN ('EU') TABLESPACE europe_ts;
 
 CREATE TABLE Profile_APAC PARTITION OF Profile (id, full_name, email, phone, country_code, hashed_password, user_picture_url, PRIMARY KEY (id, country_code))
-FOR VALUES IN ('TWN') TABLESPACE apac_ts;
+FOR VALUES IN ('APAC') TABLESPACE apac_ts;
 
 CREATE SEQUENCE workspace_id_seq
     CACHE 100
@@ -57,13 +57,13 @@ CREATE TABLE Workspace (
 PARTITION BY LIST (country_code);
 
 CREATE TABLE Workspace_USA PARTITION OF Workspace (id, name, country_code, PRIMARY KEY (id, country_code))
-FOR VALUES IN ('USA') TABLESPACE us_ts;
+FOR VALUES IN ('US') TABLESPACE us_ts;
 
 CREATE TABLE Workspace_EU PARTITION OF Workspace (id, name, country_code, PRIMARY KEY (id, country_code))
-FOR VALUES IN ('DEU') TABLESPACE europe_ts;
+FOR VALUES IN ('EU') TABLESPACE europe_ts;
 
 CREATE TABLE Workspace_APAC PARTITION OF Workspace (id, name, country_code, PRIMARY KEY (id, country_code))
-FOR VALUES IN ('TWN') TABLESPACE apac_ts;
+FOR VALUES IN ('APAC') TABLESPACE apac_ts;
 
 CREATE TABLE Workspace_Profile (
     workspace_id integer,
@@ -74,13 +74,13 @@ CREATE TABLE Workspace_Profile (
 PARTITION BY LIST (workspace_country);
 
 CREATE TABLE Workspace_Profile_USA PARTITION OF Workspace_Profile (workspace_id, profile_id, workspace_country, profile_country, PRIMARY KEY (workspace_id, profile_id, workspace_country))
-FOR VALUES IN ('USA') TABLESPACE us_ts;
+FOR VALUES IN ('US') TABLESPACE us_ts;
 
 CREATE TABLE Workspace_Profile_EU PARTITION OF Workspace_Profile (workspace_id, profile_id, workspace_country, profile_country, PRIMARY KEY (workspace_id, profile_id, workspace_country))
-FOR VALUES IN ('DEU') TABLESPACE europe_ts;
+FOR VALUES IN ('EU') TABLESPACE europe_ts;
 
 CREATE TABLE Workspace_Profile_APAC PARTITION OF Workspace_Profile (workspace_id, profile_id, workspace_country, profile_country, PRIMARY KEY (workspace_id, profile_id, workspace_country))
-FOR VALUES IN ('TWN') TABLESPACE apac_ts;
+FOR VALUES IN ('APAC') TABLESPACE apac_ts;
 
 CREATE SEQUENCE channel_id_seq
     CACHE 100
@@ -95,13 +95,13 @@ CREATE TABLE Channel (
 PARTITION BY LIST (country_code);
 
 CREATE TABLE Channel_USA PARTITION OF Channel (id, name, workspace_id, country_code, PRIMARY KEY (id, country_code))
-FOR VALUES IN ('USA') TABLESPACE us_ts;
+FOR VALUES IN ('US') TABLESPACE us_ts;
 
 CREATE TABLE Channel_EU PARTITION OF Channel (id, name, workspace_id, country_code, PRIMARY KEY (id, country_code))
-FOR VALUES IN ('DEU') TABLESPACE europe_ts;
+FOR VALUES IN ('EU') TABLESPACE europe_ts;
 
 CREATE TABLE Channel_APAC PARTITION OF Channel (id, name, workspace_id, country_code, PRIMARY KEY (id, country_code))
-FOR VALUES IN ('TWN') TABLESPACE apac_ts;
+FOR VALUES IN ('APAC') TABLESPACE apac_ts;
 
 CREATE SEQUENCE message_id_seq
     CACHE 100
@@ -120,11 +120,11 @@ CREATE TABLE Message (
 PARTITION BY LIST (country_code);
 
 CREATE TABLE Message_USA PARTITION OF Message (id, channel_id, sender_id, message, sent_at, country_code, sender_country_code, PRIMARY KEY (id, country_code))
-FOR VALUES IN ('USA') TABLESPACE us_ts;
+FOR VALUES IN ('US') TABLESPACE us_ts;
 
 CREATE TABLE Message_EU PARTITION OF Message (id, channel_id, sender_id, message, sent_at, country_code, sender_country_code, PRIMARY KEY (id, country_code))
-FOR VALUES IN ('DEU') TABLESPACE europe_ts;
+FOR VALUES IN ('EU') TABLESPACE europe_ts;
 
 CREATE TABLE Message_APAC PARTITION OF Message (id, channel_id, sender_id, message, sent_at, country_code, sender_country_code, PRIMARY KEY (id, country_code))
-FOR VALUES IN ('TWN') TABLESPACE apac_ts;
+FOR VALUES IN ('APAC') TABLESPACE apac_ts;
 

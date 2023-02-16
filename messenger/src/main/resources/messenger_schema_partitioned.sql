@@ -33,19 +33,19 @@ CREATE TABLE Profile_USA
     PARTITION OF Profile
     (id, full_name, email, phone, country_code, hashed_password, user_picture_url,
     PRIMARY KEY(id, country_code))
-    FOR VALUES IN ('USA') TABLESPACE us_central1_ts;
+    FOR VALUES IN ('US') TABLESPACE us_central1_ts;
 
 CREATE TABLE Profile_EU
     PARTITION OF Profile
     (id, full_name, email, phone, country_code, hashed_password, user_picture_url,
     PRIMARY KEY(id, country_code))
-    FOR VALUES IN ('DEU') TABLESPACE europe_west3_ts;
+    FOR VALUES IN ('EU') TABLESPACE europe_west3_ts;
 
 CREATE TABLE Profile_APAC
     PARTITION OF Profile
     (id, full_name, email, phone, country_code, hashed_password, user_picture_url,
     PRIMARY KEY(id, country_code))
-    FOR VALUES IN ('TWN') TABLESPACE asia_east1_ts;
+    FOR VALUES IN ('APAC') TABLESPACE asia_east1_ts;
 
 
 
@@ -61,19 +61,19 @@ CREATE TABLE Workspace_USA
     PARTITION OF Workspace
     (id, name, country_code,
     PRIMARY KEY(id, country_code))
-    FOR VALUES IN ('USA') TABLESPACE us_central1_ts;
+    FOR VALUES IN ('US') TABLESPACE us_central1_ts;
 
 CREATE TABLE Workspace_EU
     PARTITION OF Workspace
     (id, name, country_code,
     PRIMARY KEY(id, country_code))
-    FOR VALUES IN ('DEU') TABLESPACE europe_west3_ts;
+    FOR VALUES IN ('EU') TABLESPACE europe_west3_ts;
 
 CREATE TABLE Workspace_APAC
     PARTITION OF Workspace
     (id, name, country_code,
     PRIMARY KEY(id, country_code))
-    FOR VALUES IN ('TWN') TABLESPACE asia_east1_ts;
+    FOR VALUES IN ('APAC') TABLESPACE asia_east1_ts;
 
 
 
@@ -88,19 +88,19 @@ CREATE TABLE Workspace_Profile_USA
     PARTITION OF Workspace_Profile
     (workspace_id, profile_id, workspace_country, profile_country,
     PRIMARY KEY(workspace_id, profile_id, workspace_country))
-    FOR VALUES IN ('USA') TABLESPACE us_central1_ts;
+    FOR VALUES IN ('US') TABLESPACE us_central1_ts;
 
 CREATE TABLE Workspace_Profile_EU
     PARTITION OF Workspace_Profile
     (workspace_id, profile_id, workspace_country, profile_country,
     PRIMARY KEY(workspace_id, profile_id, workspace_country))
-    FOR VALUES IN ('DEU') TABLESPACE europe_west3_ts;
+    FOR VALUES IN ('EU') TABLESPACE europe_west3_ts;
 
 CREATE TABLE Workspace_Profile_APAC
     PARTITION OF Workspace_Profile
     (workspace_id, profile_id, workspace_country, profile_country,
     PRIMARY KEY(workspace_id, profile_id, workspace_country))
-    FOR VALUES IN ('TWN') TABLESPACE asia_east1_ts;
+    FOR VALUES IN ('APAC') TABLESPACE asia_east1_ts;
 
 
 
@@ -117,19 +117,19 @@ CREATE TABLE Channel_USA
     PARTITION OF Channel
     (id, name, workspace_id, country_code,
     PRIMARY KEY(id, country_code))
-    FOR VALUES IN ('USA') TABLESPACE us_central1_ts;
+    FOR VALUES IN ('US') TABLESPACE us_central1_ts;
 
 CREATE TABLE Channel_EU
     PARTITION OF Channel
     (id, name, workspace_id, country_code,
     PRIMARY KEY(id, country_code))
-    FOR VALUES IN ('DEU') TABLESPACE europe_west3_ts;
+    FOR VALUES IN ('EU') TABLESPACE europe_west3_ts;
 
 CREATE TABLE Channel_APAC
     PARTITION OF Channel
     (id, name, workspace_id, country_code,
     PRIMARY KEY(id, country_code))
-    FOR VALUES IN ('TWN') TABLESPACE asia_east1_ts;
+    FOR VALUES IN ('APAC') TABLESPACE asia_east1_ts;
 
 
 
@@ -150,16 +150,16 @@ CREATE TABLE Message_USA
     PARTITION OF Message
     (id, channel_id, sender_id, message, sent_at, country_code, sender_country_code,
     PRIMARY KEY(id, country_code))
-    FOR VALUES IN ('USA') TABLESPACE us_central1_ts;
+    FOR VALUES IN ('US') TABLESPACE us_central1_ts;
 
 CREATE TABLE Message_EU
     PARTITION OF Message
     (id, channel_id, sender_id, message, sent_at, country_code, sender_country_code,
     PRIMARY KEY(id, country_code))
-    FOR VALUES IN ('DEU') TABLESPACE europe_west3_ts;
+    FOR VALUES IN ('EU') TABLESPACE europe_west3_ts;
 
 CREATE TABLE Message_APAC
     PARTITION OF Message
     (id, channel_id, sender_id, message, sent_at, country_code, sender_country_code,
     PRIMARY KEY(id, country_code))
-    FOR VALUES IN ('TWN') TABLESPACE asia_east1_ts;
+    FOR VALUES IN ('APAC') TABLESPACE asia_east1_ts;
