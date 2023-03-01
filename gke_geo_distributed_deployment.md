@@ -8,13 +8,13 @@ The application instances are deployed to Google Kubernetes Engine. YugabyteDB i
 - [Deploying Geo-Distributed Applications on Google Kubernetes Engine with YugabyteDB](#deploying-geo-distributed-applications-on-google-kubernetes-engine-with-yugabytedb)
   - [Prerequisite](#prerequisite)
   - [Create Google Cloud Project](#create-google-cloud-project)
-  - [Enable Google Cloud Storage](#enable-google-cloud-storage)
-  - [Create Artifact Repositories](#create-artifact-repositories)
-  - [Prepare Docker Images](#prepare-docker-images)
   - [Enable Anthos Pricing](#enable-anthos-pricing)
   - [Create Service Account](#create-service-account)
   - [Start GKE Cluster](#start-gke-clusters)
+  - [Enable Google Cloud Storage](#enable-google-cloud-storage)
   - [Deploy YugabyteDB Managed Instance](#deploy-yugabytedb-managed-instance)
+  - [Create Artifact Repositories](#create-artifact-repositories)
+  - [Prepare Docker Images](#prepare-docker-images)
   - [Start Application](#start-application)
   - [Deploy Multi Cluster Ingress](#deploy-multi-cluster-ingress)
   - [Playing with the App](#playing-with-the-app)
@@ -50,79 +50,6 @@ The application instances are deployed to Google Kubernetes Engine. YugabyteDB i
 4. Open Google Console and enable a billing account for the project: `https://console.cloud.google.com`
 
 5. [Enable](https://console.cloud.google.com/flows/enableapi?apiid=artifactregistry.googleapis.com,cloudbuild.googleapis.com,container.googleapis.com&redirect=https://console.cloud.google.com&_ga=2.220829720.1831599196.1672860095-1629291620.1658249275&_gac=1.192717528.1671329959.CjwKCAiA7vWcBhBUEiwAXieItpcBgXS6j-SP2knNZYtSNXNn5f47EGszdv3UbRLZfbWH8alv4pQ9cxoCSG0QAvD_BwE) Artifact Registry, Cloud Build and Kubernetes Engine APIs.
-
-## Enable Google Cloud Storage
-
-The Attachments microservice uploads pictures to [Google Cloud Storage](https://cloud.google.com/storage). Enable the service for tyour Google Project.
-
-## Create Artifact Repositories
-
-The application instances will be deployed in the following five cloud regions:
-* Three regions are in North America — `us-west1`, `us-central1` and `us-east1`.
-* One is in Europe — `europe-west3`.
-* And the last one is in Asia - `asia-east1`
-
-First, create artifact repositories in all the cloud regions where the application instances will be deployed. Use [Artifact Registry](https://cloud.google.com/artifact-registry) for that:
-1. Create artifact repositories in North America:
-    ```shell
-    gcloud artifacts repositories create geo-distributed-messenger-repo \
-        --repository-format=docker \
-        --location=us-west1 \
-        --description="Docker repository for geo-distributed messenger containers"
-
-    gcloud artifacts repositories create geo-distributed-messenger-repo \
-        --repository-format=docker \
-        --location=us-central1 \
-        --description="Docker repository for geo-distributed messenger containers"
-
-    gcloud artifacts repositories create geo-distributed-messenger-repo \
-        --repository-format=docker \
-        --location=us-east1 \
-        --description="Docker repository for geo-distributed messenger containers"
-    ```
-
-2. Create repositories in Europe and Asia:
-    ```shell
-    gcloud artifacts repositories create geo-distributed-messenger-repo \
-        --repository-format=docker \
-        --location=europe-west3 \
-        --description="Docker repository for geo-distributed messenger containers"
-
-    gcloud artifacts repositories create geo-distributed-messenger-repo \
-        --repository-format=docker \
-        --location=asia-east1 \
-        --description="Docker repository for geo-distributed messenger containers"
-    ```
-
-## Prepare Docker Images
-
-Build a Docker image for each application microservice and load the images to the selected cloud regions.
-
-1. Navigate to the `gcloud/gke` directory of the project:
-    ```shell
-    cd PROJECT_ROO_DIR/gcloud/gke
-    ```
-
-2. Build and load the images to the regions in North America:
-    ```shell
-    ./build_docker_images.sh \
-        -r us-west1
-    
-    ./build_docker_images.sh \
-        -r us-central1
-
-    ./build_docker_images.sh \
-        -r us-east1
-    ```
-
-3. Repeate the process for the regions in Europe and Asia:
-    ```shell
-    ./build_docker_images.sh \
-        -r europe-west3
-
-    ./build_docker_images.sh \
-        -r asia-east1
-    ```
 
 ## Enable Anthos Pricing
 
@@ -216,6 +143,10 @@ Start GKE clusters in all five cloud locations:
 
 Now, you can open the [Anthos](https://cloud.google.com/anthos) dashboard to observe the clusters and Ingress.
 
+## Enable Google Cloud Storage
+
+The Attachments microservice uploads pictures to [Google Cloud Storage](https://cloud.google.com/storage). Enable the service for tyour Google Project.
+
 ## Deploy YugabyteDB Managed Instance
 
 YugabyteDB will be deployed in a geo-partitioned mode, placing the database nodes in all the regions where the GKE clusters are already located.
@@ -231,6 +162,75 @@ YugabyteDB will be deployed in a geo-partitioned mode, placing the database node
 
 3. [Allow access](https://docs.yugabyte.com/preview/yugabyte-cloud/cloud-secure-clusters/add-connections/) to the cluster from the IP addresses used by the GKE cluster.
 
+
+## Create Artifact Repositories
+
+The application instances will be deployed in the following five cloud regions:
+* Three regions are in North America — `us-west1`, `us-central1` and `us-east1`.
+* One is in Europe — `europe-west3`.
+* And the last one is in Asia - `asia-east1`
+
+First, create artifact repositories in all the cloud regions where the application instances will be deployed. Use [Artifact Registry](https://cloud.google.com/artifact-registry) for that:
+1. Create artifact repositories in North America:
+    ```shell
+    gcloud artifacts repositories create geo-distributed-messenger-repo \
+        --repository-format=docker \
+        --location=us-west1 \
+        --description="Docker repository for geo-distributed messenger containers"
+
+    gcloud artifacts repositories create geo-distributed-messenger-repo \
+        --repository-format=docker \
+        --location=us-central1 \
+        --description="Docker repository for geo-distributed messenger containers"
+
+    gcloud artifacts repositories create geo-distributed-messenger-repo \
+        --repository-format=docker \
+        --location=us-east1 \
+        --description="Docker repository for geo-distributed messenger containers"
+    ```
+
+2. Create repositories in Europe and Asia:
+    ```shell
+    gcloud artifacts repositories create geo-distributed-messenger-repo \
+        --repository-format=docker \
+        --location=europe-west3 \
+        --description="Docker repository for geo-distributed messenger containers"
+
+    gcloud artifacts repositories create geo-distributed-messenger-repo \
+        --repository-format=docker \
+        --location=asia-east1 \
+        --description="Docker repository for geo-distributed messenger containers"
+    ```
+
+## Prepare Docker Images
+
+Build a Docker image for each application microservice and load the images to the selected cloud regions.
+
+1. Navigate to the `gcloud/gke` directory of the project:
+    ```shell
+    cd PROJECT_ROO_DIR/gcloud/gke
+    ```
+
+2. Build and load the images to the regions in North America:
+    ```shell
+    ./build_docker_images.sh \
+        -r us-west1
+    
+    ./build_docker_images.sh \
+        -r us-central1
+
+    ./build_docker_images.sh \
+        -r us-east1
+    ```
+
+3. Repeate the process for the regions in Europe and Asia:
+    ```shell
+    ./build_docker_images.sh \
+        -r europe-west3
+
+    ./build_docker_images.sh \
+        -r asia-east1
+    ```
 ## Start Application
 
 Start an instance of Spring Cloud Config Server, Attachments and Messenger in every GKE location.
