@@ -5,7 +5,7 @@ The application instances are deployed to Google Kubernetes Engine. YugabyteDB i
 
 <!-- vscode-markdown-toc -->
 
-- [Geo-Distributed Deployment in Google Kubernetes Engine](#geo-distributed-deployment-in-google-kubernetes-engine)
+- [Deploying Geo-Distributed Applications on Google Kubernetes Engine with YugabyteDB](#deploying-geo-distributed-applications-on-google-kubernetes-engine-with-yugabytedb)
   - [Prerequisite](#prerequisite)
   - [Create Google Cloud Project](#create-google-cloud-project)
   - [Enable Google Cloud Storage](#enable-google-cloud-storage)
@@ -404,12 +404,24 @@ http://VIP/
 2. Run the script that removes GKE clusters for each used cloud region:
     ```shell
     ./clean_gke.sh \
-        -n gke-us-east4 \
-        -r us-east4
+        -n gke-us-west1 \
+        -r us-west1
     
     ./clean_gke.sh \
-        -n gke-europe-west1 \
-        -r europe-west1
+        -n gke-us-central1 \
+        -r us-central1
+    
+    ./clean_gke.sh \
+        -n gke-us-east1 \
+        -r us-east1
+
+    ./clean_gke.sh \
+        -n gke-europe-west3 \
+        -r europe-west3
+    
+    ./clean_gke.sh \
+        -n gke-asia-east1 \
+        -r us-asia-east1
     ```
 
     the arguments are:
