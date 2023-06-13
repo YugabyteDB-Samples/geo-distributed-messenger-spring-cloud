@@ -9,5 +9,5 @@ import io.hypersistence.utils.spring.repository.BaseJpaRepository;
 
 public interface MessageRepository extends BaseJpaRepository<Message, GeoId> {
 
-    public List<Message> findByChannelIdAndCountryCodeOrderByIdAsc(Integer channelId, String countryCode);
+    public List<Message> findByChannelIdAndCountryCodeOrderBySentAtAsc(Integer channelId, String countryCode);
 }

@@ -34,7 +34,7 @@ public class MessagingService {
     }
 
     public List<Message> getMessages(Channel channel) {
-        return messageRepository.findByChannelIdAndCountryCodeOrderByIdAsc(channel.getId(),
+        return messageRepository.findByChannelIdAndCountryCodeOrderBySentAtAsc(channel.getId(),
                 channel.getCountryCode());
     }
 
