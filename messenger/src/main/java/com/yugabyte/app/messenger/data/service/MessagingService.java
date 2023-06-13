@@ -34,15 +34,28 @@ public class MessagingService {
     }
 
     public List<Message> getMessages(Channel channel) {
-        return messageRepository.findByChannelIdAndCountryCodeOrderByIdAsc(channel.getId(), channel.getCountryCode());
+        long startTime = System.currentTimeMillis();
+
+        List<Message> messages = messageRepository.findByChannelIdAndCountryCodeOrderByIdAsc(channel.getId(),
+                channel.getCountryCode());
+
+        System.out.printf("Spent %d millis loading channel %s from %s\n", (System.currentTimeMillis() - startTime),
+                channel.getName(), channel.getCountryCode());
+
+        return messages;
     }
 
     @Transactional
     public Message addMessage(Message newMessage) {
+        long startTime = System.currentTimeMillis();
+
         if (dataSource.isReplicaConnection())
             sManagementRepository.switchToReadWriteTxMode();
 
         Message message = messageRepository.persist(newMessage);
+
+        System.out.printf("Spent %d millis sending the message to %s\n", (System.currentTimeMillis() - startTime),
+                newMessage.getCountryCode());
 
         return message;
     }

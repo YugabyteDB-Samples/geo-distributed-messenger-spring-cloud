@@ -50,7 +50,7 @@ public class DataGenerator {
                         String germanyCode = "EU";
                         String taiwanCode = "APAC";
 
-                        List<String> countryCodes = Stream.of(usCode, germanyCode, taiwanCode).toList();
+                        List<String> countryCodes = Stream.of(taiwanCode, germanyCode, usCode).toList();
 
                         // Generating Workspaces
                         logger.info("Generating Workspaces");
@@ -61,7 +61,7 @@ public class DataGenerator {
 
                         AtomicInteger counter = new AtomicInteger();
 
-                        List<Workspace> workspacesInit = wGenerator.create(10, seed).stream().map(
+                        List<Workspace> workspacesInit = wGenerator.create(5, seed).stream().map(
                                         workspace -> {
                                                 int idx = counter.incrementAndGet() % countryCodes.size();
                                                 workspace.setCountryCode(
@@ -77,7 +77,7 @@ public class DataGenerator {
                         ExampleDataGenerator<Channel> cGenerator = new ExampleDataGenerator<>(Channel.class,
                                         LocalDateTime.now());
                         cGenerator.setData(Channel::setName, DataType.WORD);
-                        List<Channel> channelsInit = cGenerator.create(30, seed).stream().map(
+                        List<Channel> channelsInit = cGenerator.create(20, seed).stream().map(
                                         channel -> {
                                                 Workspace workspace = workspaces
                                                                 .get(rand.nextInt(workspaces.size()));
@@ -101,7 +101,7 @@ public class DataGenerator {
 
                         Set<Integer> setProfileWorkspaces = new HashSet<>();
 
-                        List<Profile> profilesInit = pGenerator.create(100, seed).stream().map(
+                        List<Profile> profilesInit = pGenerator.create(5, seed).stream().map(
                                         profile -> {
                                                 // User's personal data is stored in the country of residency. It
                                                 // doesn't need to be similar to a workspace country.
@@ -111,9 +111,9 @@ public class DataGenerator {
 
                                                 setProfileWorkspaces.clear();
 
-                                                for (int i = 0; i < 10; i++) {
-                                                        Workspace workspace = workspaces.get(
-                                                                        rand.nextInt(workspaces.size()));
+                                                // Adding each user to every existing workspace
+                                                for (int i = 0; i < workspaces.size(); i++) {
+                                                        Workspace workspace = workspaces.get(i);
 
                                                         if (setProfileWorkspaces.contains(workspace.getId()))
                                                                 continue;
@@ -149,7 +149,7 @@ public class DataGenerator {
                                                 LocalDateTime.now());
                                 mGenerator.setData(Message::setMessage, DataType.SENTENCE);
 
-                                List<Message> messages = mGenerator.create(100, seed).stream().map(
+                                List<Message> messages = mGenerator.create(50, seed).stream().map(
                                                 message -> {
                                                         message.setId(UUID.randomUUID());
                                                         message.setCountryCode(workspace.getCountryCode());

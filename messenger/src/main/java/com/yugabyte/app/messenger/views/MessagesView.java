@@ -217,6 +217,9 @@ public class MessagesView extends Section {
     }
 
     public void changeChannel(Channel newChannel) {
+        if (currentChannel != null && currentChannel.equals(newChannel))
+            return;
+
         currentChannel = newChannel;
 
         currentMessages = messagingService.getMessages(newChannel);
