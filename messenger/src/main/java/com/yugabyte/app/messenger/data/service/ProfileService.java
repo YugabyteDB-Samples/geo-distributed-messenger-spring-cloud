@@ -42,13 +42,15 @@ public class ProfileService {
     @Bean
     public CommandLineRunner preloadProfiles() {
         return args -> {
-            List<Profile> users = repository.findByIdGreaterThanEqual(1);
+            Profile user = repository.findByEmailAndCountryCode("test@gmail.com", "US");
 
-            users.forEach(user -> {
+            if (user != null) {
                 localCache.put(new GeoId(user.getId(), user.getCountryCode()), user);
-            });
+                System.out.println("Preloaded a test user: " + user);
+            } else {
+                System.err.println("Failed preloading the test user");
+            }
 
-            System.out.printf("Preloaded %d Profiles to local cache\n", users.size());
         };
     }
 

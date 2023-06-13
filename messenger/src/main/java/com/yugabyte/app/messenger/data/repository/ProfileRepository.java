@@ -10,6 +10,8 @@ import java.util.List;
 import org.springframework.data.jpa.repository.Query;
 
 public interface ProfileRepository extends BaseJpaRepository<Profile, GeoId> {
+    public Profile findByEmailAndCountryCode(String email, String countryCode);
+
     public Profile findByEmail(String email);
 
     @Query(value = "SELECT p.* FROM Profile p JOIN Workspace_Profile wp " +

@@ -126,6 +126,7 @@ public class DataGenerator {
                                         }).collect(Collectors.toList());
 
                         profilesInit.get(0).setEmail("test@gmail.com");
+                        profilesInit.get(0).setCountryCode("US");
 
                         profilesInit.get(1).setEmail("test-europe@gmail.com");
                         profilesInit.get(1).setCountryCode("EU");
