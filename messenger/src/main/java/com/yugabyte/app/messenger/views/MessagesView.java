@@ -38,6 +38,7 @@ import java.time.format.DateTimeFormatter;
 import java.time.format.FormatStyle;
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 
 import javax.annotation.security.PermitAll;
 
@@ -129,6 +130,7 @@ public class MessagesView extends Section {
 
             Message newMessage = new Message();
 
+            newMessage.setId(UUID.randomUUID());
             newMessage.setChannelId(currentChannel.getId());
             newMessage.setCountryCode(currentChannel.getCountryCode());
             newMessage.setSenderId(user.getId());

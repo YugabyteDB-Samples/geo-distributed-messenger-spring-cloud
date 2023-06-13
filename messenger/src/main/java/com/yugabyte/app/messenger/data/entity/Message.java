@@ -1,30 +1,20 @@
 package com.yugabyte.app.messenger.data.entity;
 
 import java.sql.Timestamp;
+import java.util.UUID;
 
 import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.IdClass;
 import javax.validation.constraints.NotEmpty;
 
 import org.hibernate.annotations.CreationTimestamp;
-import org.hibernate.annotations.GenericGenerator;
-import org.hibernate.annotations.Parameter;
 
 @Entity
-@IdClass(GeoId.class)
+@IdClass(MessageId.class)
 public class Message {
     @Id
-    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "message_id_pooled_lo_generator")
-    @GenericGenerator(name = "message_id_pooled_lo_generator", strategy = "org.hibernate.id.enhanced.SequenceStyleGenerator", parameters = {
-            @Parameter(name = "sequence_name", value = "message_id_seq"),
-            @Parameter(name = "initial_value", value = "1"),
-            @Parameter(name = "increment_size", value = "10"),
-            @Parameter(name = "optimizer", value = "pooled-lo")
-    })
-    private Integer id;
+    private UUID id;
 
     @Id
     private String countryCode;
@@ -42,14 +32,6 @@ public class Message {
 
     @CreationTimestamp
     private Timestamp sentAt;
-
-    public Integer getId() {
-        return id;
-    }
-
-    public void setId(Integer id) {
-        this.id = id;
-    }
 
     public String getCountryCode() {
         return countryCode;
@@ -112,5 +94,13 @@ public class Message {
         return "Message [channelId=" + channelId + ", countryCode=" + countryCode + ", id=" + id + ", message="
                 + message + ", senderCountryCode=" + senderCountryCode + ", senderId=" + senderId + ", sentAt=" + sentAt
                 + "]";
+    }
+
+    public UUID getId() {
+        return id;
+    }
+
+    public void setId(UUID id) {
+        this.id = id;
     }
 }
