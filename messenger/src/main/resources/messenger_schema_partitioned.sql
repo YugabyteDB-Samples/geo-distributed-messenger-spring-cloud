@@ -4,17 +4,17 @@ SET search_path TO Messenger;
 
 CREATE TABLESPACE us_central1_ts WITH (
     replica_placement = '{"num_replicas": 1, "placement_blocks":
-  [{"cloud":"gcp","region":"us-east1","zone":"us-east1-b","min_num_replicas":1}]}'
+  [{"cloud":"gcp","region":"us-east1","zone":"us-east1-d","min_num_replicas":1}]}'
 );
 
 CREATE TABLESPACE europe_west3_ts WITH (
     replica_placement = '{"num_replicas": 1, "placement_blocks":
-  [{"cloud":"gcp","region":"europe-west3","zone":"europe-west3-b","min_num_replicas":1}]}'
+  [{"cloud":"gcp","region":"europe-west3","zone":"europe-west3-a","min_num_replicas":1}]}'
 );
 
 CREATE TABLESPACE asia_east1_ts WITH (
     replica_placement = '{"num_replicas": 1, "placement_blocks":
-  [{"cloud":"gcp","region":"asia-east1","zone":"asia-east1-b","min_num_replicas":1}]}'
+  [{"cloud":"gcp","region":"asia-east1","zone":"asia-east1-a","min_num_replicas":1}]}'
 );
 
 CREATE SEQUENCE profile_id_seq
