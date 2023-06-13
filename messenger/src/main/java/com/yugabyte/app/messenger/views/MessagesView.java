@@ -139,7 +139,12 @@ public class MessagesView extends Section {
             newMessage.setMessage(message);
             newMessage.setAttachment(attachment);
 
+            long startTime = System.currentTimeMillis();
+
             newMessage = messagingService.addMessage(newMessage);
+
+            System.out.printf("Spent %d millis sending the message to %s\n", (System.currentTimeMillis() - startTime),
+                    newMessage.getCountryCode());
 
             if (newMessage != null) {
                 currentMessages.add(newMessage);
@@ -222,8 +227,13 @@ public class MessagesView extends Section {
 
         currentChannel = newChannel;
 
+        long startTime = System.currentTimeMillis();
+
         currentMessages = messagingService.getMessages(newChannel);
         messageList.setItems(currentMessages);
+
+        System.out.printf("Spent %d millis loading channel %s from %s\n", (System.currentTimeMillis() - startTime),
+                newChannel.getName(), newChannel.getCountryCode());
 
         if (currentMessages.size() > 0) {
             messageList.getChildren().toList().get(
