@@ -35,9 +35,11 @@ public class DataGenerator {
                 return args -> {
                         Logger logger = LoggerFactory.getLogger(getClass());
 
-                        if (userRepository.count() != 0L) {
+                        long usersCount = userRepository.count();
+
+                        if (usersCount != 0L) {
                                 logger.info("Using existing database");
-                                logger.info("Number of entities " + userRepository.count());
+                                logger.info("Number of entities " + usersCount);
                                 return;
                         }
 
