@@ -138,7 +138,7 @@ Start GKE clusters in all five cloud locations:
 5. Enable [Multi Cluster Ingress](https://cloud.google.com/kubernetes-engine/docs/concepts/multi-cluster-ingress) and select `gke-us-east1` as the config cluster:
     ```shell
     gcloud container fleet ingress enable \
-        --config-membership=gke-us-east1
+        --location=us-east1 --config-membership=gke-us-east1
     ```
 
 Now, you can open the [Anthos](https://cloud.google.com/anthos) dashboard to observe the clusters and Ingress.
